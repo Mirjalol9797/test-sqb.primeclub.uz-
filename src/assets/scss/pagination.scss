@@ -1,0 +1,43 @@
+.pagination-container {
+  display: flex;
+  column-gap: 10px;
+
+  .paginate-buttons {
+    height: 32px;
+    width: 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 5px 15px;
+    color: #111827;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 160%;
+  }
+  .paginate-buttons:hover {
+    background-color: #f8f8f8;
+  }
+  .active-page {
+    background-color: #f8f8f8;
+  }
+  .active-page:hover {
+    background-color: #f8f8f8;
+  }
+  .back-button,
+  .next-button {
+    border: 1px solid #f1f2f4;
+    font-size: 0 !important;
+    background-image: url(../images/angle-right.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .back-button {
+    transform: rotate(-180deg);
+  }
+}
+ul#componentContainer button {
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

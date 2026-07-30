@@ -1,0 +1,16 @@
+stages:
+  - build
+  - deploy
+  - clean
+
+variables:
+  CONTAINER_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
+  DOCKER_IMAGE_TAG: $CONTAINER_REGISTRY:$CI_COMMIT_SHA
+  KUBECONFIG_PATH: "/tmp/kubeconfig"
+
+before_script:
+  - echo "$BROKER_KUBECONFIG" > $KUBECONFIG_PATH
+
+include:
+  - local: .gitlab/prod.yml
+  - local: .gitlab/dev.yml
