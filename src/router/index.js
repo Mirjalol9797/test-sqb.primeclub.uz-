@@ -5,12 +5,20 @@ import { setLocale } from "@/plugins/i18n";
 
 // 1) БАЗОВЫЕ (RU, без префикса)
 const baseRoutes = [
-  { path: "/", redirect: "/webview" },
+  { path: "/", redirect: "/offer" },
+  // Форвардер входа (Вариант 1): /login?redirect=/app/partner/{id}?...
   {
-    path: "/webview",
-    name: "Webview",
+    path: "/login",
+    name: "Login",
     meta: { public: true },
-    component: () => import("@/views/webview/index.vue"),
+    component: () => import("@/views/login/index.vue"),
+  },
+  // Точка входа WebView: SSO-автологин или гостевой режим
+  {
+    path: "/app/partner/:partner_id",
+    name: "PartnerEntry",
+    meta: { public: true },
+    component: () => import("@/views/partner/index.vue"),
   },
   {
     path: "/offer",
@@ -36,13 +44,13 @@ const baseRoutes = [
   {
     path: "/profile",
     name: "profile",
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, demoBlocked: true },
     component: () => import("@/views/profile/index.vue"),
   },
   {
     path: "/profile/detail-info",
     name: "profile/detail-info",
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, demoBlocked: true },
     component: () => import("@/views/profile/detail-info.vue"),
   },
   {
@@ -123,35 +131,39 @@ const router = createRouter({
   },
 });
 
-// 4) Guard: синхронизируем локаль с URL и проверяем приватные роуты
+// 4) Guard: локаль (по параметру lang или префиксу /uz) + защита приватных роутов.
+//    Гостевой режим: публичные разделы витрины открыты без токена;
+//    только meta.requiresAuth требует авторизации.
 router.beforeEach(async (to, from, next) => {
-  // локаль по URL
   const isUz = to.path.startsWith("/uz");
-  const targetLocale = isUz ? "uz" : "ru";
+  const langParam = to.query.lang;
+  const targetLocale =
+    langParam === "uz" || langParam === "ru"
+      ? langParam
+      : isUz
+      ? "uz"
+      : "ru";
 
-  // Синхронизируем локаль с URL и сохраняем в localStorage
   if (i18n.global.locale.value !== targetLocale) {
     setLocale(targetLocale);
   }
 
   const loginStore = useLoginStore();
   const token = loginStore.token;
-  const entryRouteName = targetLocale === "uz" ? "Webview-uz" : "Webview";
-  const offerRouteName = targetLocale === "uz" ? "OfferAll-uz" : "OfferAll";
 
-  // Экран входа (WebView-мост) доступен без токена
-  if (!token && to.name !== entryRouteName) {
-    next({ name: entryRouteName });
+  // Приватные разделы недоступны гостю — уводим на витрину
+  if (to.meta.requiresAuth && !token) {
+    next(isUz ? "/uz/offer" : "/offer");
     return;
   }
 
-  // Уже авторизован и пришёл на экран входа без токена в URL — сразу внутрь
-  if (token && to.name === entryRouteName && !to.query.token) {
-    next({ name: offerRouteName });
+  // Разделы, закрытые для демо-пользователя (например, профиль)
+  if (to.meta.demoBlocked && loginStore.isDemo) {
+    next(isUz ? "/uz/offer" : "/offer");
     return;
   }
 
-  if (token && to.name !== entryRouteName) {
+  if (to.meta.requiresAuth && token) {
     loginStore.checkAuthToken(router);
   }
 

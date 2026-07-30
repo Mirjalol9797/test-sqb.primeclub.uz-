@@ -10,6 +10,7 @@ import {
 import { useRoute } from "vue-router";
 import { useLoginStore } from "@/stores/login";
 import { useSettingsStore } from "@/stores/settings";
+import { ensureAuthedForCertificate } from "@/utils/tools.js";
 import TmButton from "@/components/ui/TmButton.vue";
 import ModalAboniment from "@/components/modals/ModalAboniment.vue";
 import ModalGlobalDownloadCertificate from "@/components/certificatDownload/ModalGlobalDownloadCertificate.vue";
@@ -73,6 +74,7 @@ const emit = defineEmits([
 ]);
 
 function showCode(item) {
+  if (!ensureAuthedForCertificate()) return;
   emit("getOfferCode", item);
   showCodes.value[item.id] = true;
 }
@@ -87,6 +89,7 @@ function openDownloadAppModal() {
 }
 
 function openWarnFlowWithBranches(offerId) {
+  if (!ensureAuthedForCertificate()) return;
   selectedOfferIdForWarnModal.value = offerId;
   selectedMerchantBranchIdForWarnModal.value = null;
   const branches = props.merchant?.branches || [];

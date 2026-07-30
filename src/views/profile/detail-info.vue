@@ -73,9 +73,6 @@ function logOut() {
             :label="$t('company')"
           ></tm-input>
         </div>
-        <button @click="logOut" class="site-btn-grey mt-4 min-h-12 mx-auto">
-          <span>{{ $t("exit") }}</span>
-        </button>
       </div>
     </div>
   </div>

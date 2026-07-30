@@ -1,5 +1,6 @@
 import { toast } from "vue3-toastify";
 import { useLoginStore } from "@/stores/login";
+import i18n from "@/plugins/i18n";
 
 import {
   DOCUMENT_STATUS,
@@ -11,6 +12,15 @@ import {
 export function getAccessToken() {
   const store = useLoginStore();
   return store.token;
+}
+
+// Получить сертификат/код может только полноценно авторизованный (SSO) пользователь.
+// Гость (демо-вход) — не может, несмотря на наличие токена.
+export function ensureAuthedForCertificate() {
+  const store = useLoginStore();
+  if (store.token && !store.isDemo) return true;
+  toast.info(i18n.global.t("auth_required_for_certificate"));
+  return false;
 }
 
 export const formattedDate = (timestamp) => {

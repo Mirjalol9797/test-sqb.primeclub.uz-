@@ -29,12 +29,10 @@ const $axios = axios.create({
 $axios.interceptors.request.use(
   (config) => {
     config.headers = config.headers || {};
-    // Партнёрская авторизация (v1/auth/partner) выполняется на сервере банка,
-    // фронтенд получает готовый токен из URL WebView — assertion не подписываем.
-    const requestUrl = String(config.url || "");
-    const isPublicAuthRequest = requestUrl.startsWith("v1/auth/partner");
+    // Токен добавляем, если он есть. Эндпоинты SSO (verify/consent) вызываются
+    // до появления токена, поэтому Authorization туда просто не попадёт.
     const token = getActiveLoginToken() || getPersistedLoginToken();
-    if (!isPublicAuthRequest && token) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
       delete config.headers.Authorization;
@@ -45,6 +43,9 @@ $axios.interceptors.request.use(
     config.headers["Accept-Language"] = currentLocale;
     config.headers["Content-Type"] = "application/json";
     config.headers["X-Client-Type"] = "sqb";
+    // Обязательный заголовок доступа: витрина работает только внутри
+    // приложения партнёра. Без него бэкенд отвечает 403.
+    config.headers["X-Source"] = "app";
 
     return config;
   },

@@ -10,6 +10,7 @@ import {
 import { useRoute } from "vue-router";
 import { useLoginStore } from "@/stores/login";
 import { useSettingsStore } from "@/stores/settings";
+import { ensureAuthedForCertificate } from "@/utils/tools.js";
 import TmButton from "@/components/ui/TmButton.vue";
 import { useFavoritesStore } from "@/stores/favorites.js";
 import ModalAboniment from "@/components/modals/ModalAboniment.vue";
@@ -76,8 +77,20 @@ const handleToggleFavorite = () => {
 };
 
 function showCode(item) {
+  if (!ensureAuthedForCertificate()) return;
   emit("getOfferCode", item);
   showCodes.value[item.id] = true;
+}
+
+// Получение сертификата доступно только авторизованным (не гостю)
+function requestCertificate(offerId) {
+  if (!ensureAuthedForCertificate()) return;
+  emit("createCertificate", offerId);
+}
+
+function requestMerchantBranches(offerId) {
+  if (!ensureAuthedForCertificate()) return;
+  emit("openMerchantBranches", offerId);
 }
 
 // Копировать код для конкретного предложения
@@ -150,14 +163,14 @@ onUnmounted(() => {
         <template v-else>
           <button
             class="site-btn-grey w-full"
-            @click="$emit('createCertificate', item?.id)"
+            @click="requestCertificate(item?.id)"
             v-if="merchant?.type == 'single'"
           >
             {{ $t("get_certificate") }}
           </button>
           <button
             class="site-btn-grey w-full"
-            @click="$emit('openMerchantBranches', item?.id)"
+            @click="requestMerchantBranches(item?.id)"
             v-else
           >
             {{ $t("get_certificate") }}

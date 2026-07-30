@@ -238,16 +238,6 @@ function logOut() {
             </div>
           </a>
         </div>
-        <div
-          class="flex justify-center fixed bottom-28 left-1/2 -translate-x-1/2 max-w-[640px] mx-auto w-full"
-        >
-          <button
-            @click="logOut"
-            class="block button-exit text-center text-base text-black font-medium bg-white border border-black rounded-3xl py-3 px-6"
-          >
-            <span>{{ $t("exit") }}</span>
-          </button>
-        </div>
       </div>
     </div>
   </div>

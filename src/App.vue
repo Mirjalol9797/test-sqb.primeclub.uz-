@@ -14,8 +14,14 @@ function siteScrollTop() {
 }
 
 const hideHeader = computed(() => {
-  // Скрываем для экрана входа, поиска и гостевых маршрутов
-  const hidePaths = ["/search", "/webview", "/uz/webview"];
+  // Скрываем для входных экранов (login-форвардер, partner-вход), поиска
+  const hidePaths = [
+    "/search",
+    "/login",
+    "/uz/login",
+    "/app/partner",
+    "/uz/app/partner",
+  ];
   if (hidePaths.some((path) => route.path.startsWith(path))) {
     return true;
   }

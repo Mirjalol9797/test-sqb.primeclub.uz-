@@ -21,6 +21,7 @@ import MMerchantSocials from "../modules/MMerchantSocials.vue";
 import MMerchantInfoCertificate from "../modules/MMerchantInfoCertificate.vue";
 import MDownloadApp from "../modules/MDownloadApp.vue";
 import axios from "@/plugins/api";
+import { ensureAuthedForCertificate } from "@/utils/tools.js";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -62,6 +63,7 @@ onMounted(async () => {
 });
 
 function createCertificate(offer_id, merchant_branch_id) {
+  if (!ensureAuthedForCertificate()) return;
   selectedOfferId.value = offer_id;
   certificatesStore.createCertificate(offer_id, merchant_branch_id);
   settingsStore.isCreateCertificate = true;
@@ -102,6 +104,7 @@ async function downloadCertificate() {
 }
 
 async function getOfferCode(item) {
+  if (!ensureAuthedForCertificate()) return;
   try {
     const response = await axios.get(`v1/offers/${item.slug}/code`);
     if (response.status !== 200) return;
@@ -136,6 +139,7 @@ function scrollToCertificateButton() {
 }
 
 function openMerchantBranches(offer_id) {
+  if (!ensureAuthedForCertificate()) return;
   selectedOfferId.value = offer_id;
   settingsStore.isMerchantBranches = true;
 }

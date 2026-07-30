@@ -1,8 +1,10 @@
 <script setup>
 import { useI18n } from "vue-i18n";
 import { localePath } from "@/plugins/i18n";
+import { useLoginStore } from "@/stores/login";
 
 const { t } = useI18n();
+const loginStore = useLoginStore();
 </script>
 
 <template>
@@ -49,6 +51,7 @@ const { t } = useI18n();
       <div class="font-medium">{{ $t("certificates") }}</div>
     </router-link>
     <router-link
+      v-if="loginStore.token && !loginStore.isDemo"
       :to="localePath('/profile')"
       class="flex items-center flex-col w-1/3"
       :class="{ 'text-white': $route.path === localePath('/profile') }"

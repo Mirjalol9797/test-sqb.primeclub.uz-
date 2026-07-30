@@ -262,14 +262,27 @@
   "download_the_app": "Ilovani yuklab oling",
   "get_your_certificate_in_the_app": "Sertifikatni ilovada oling",
   "password": "Parol",
-  "entry": {
+  "auth_required_for_certificate": "Sertifikat olish uchun bank ilovasi orqali kiring",
+  "consent": {
     "program": "Imtiyozlar dasturi",
     "title": "SQB Premium ga xush kelibsiz",
-    "description": "SQB bankining Premium mijozlari uchun eksklyuziv imtiyozlar, chegirmalar va sertifikatlar.",
-    "login": "Kirish",
-    "loading": "Avtorizatsiya...",
-    "no_token": "Avtorizatsiya tokeni topilmadi. Bo‘limni bank ilovasi orqali oching.",
-    "auth_failed": "Avtorizatsiya amalga oshmadi. Qayta urinib ko‘ring."
+    "description": "Davom etish orqali siz PrimeClub xizmatining Foydalanuvchi shartlari va maʼlumotlarni qayta ishlashga rozilik bildirasiz.",
+    "checking": "Maʼlumotlar tekshirilmoqda...",
+    "accept": "Qabul qilish va davom etish",
+    "decline": "Rozi emasman",
+    "processing": "Avtorizatsiya...",
+    "error_title": "Avtorizatsiya amalga oshmadi",
+    "continue_guest": "Mehmon sifatida davom etish"
+  },
+  "sso_errors": {
+    "default": "Avtorizatsiya amalga oshmadi. Qayta urinib ko‘ring.",
+    "TOKEN_EXPIRED": "Havola muddati tugagan. Bo‘limni qaytadan oching.",
+    "INVALID_SIGNATURE": "Token imzosi noto‘g‘ri.",
+    "UNKNOWN_KID": "Nomaʼlum imzo kaliti.",
+    "NONCE_REUSED": "Havola allaqachon ishlatilgan. Bo‘limni qaytadan oching.",
+    "PARTNER_ID_MISMATCH": "Hamkor identifikatori xatosi.",
+    "PHONE_NAME_LANG_MISMATCH": "Foydalanuvchi maʼlumotlari mos kelmadi.",
+    "CONSENT_DECLINED": "Shartlar qabul qilinmadi."
   },
   "search_establishments_offers": "Joylar va takliflarni qidirish",
   "show_all": "Barchasini ko‘rsatish",
