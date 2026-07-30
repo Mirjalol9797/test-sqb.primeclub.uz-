@@ -19,7 +19,10 @@ export function getAccessToken() {
 export function ensureAuthedForCertificate() {
   const store = useLoginStore();
   if (store.token && !store.isDemo) return true;
-  toast.info(i18n.global.t("auth_required_for_certificate"));
+  // autoClose переопределяем — глобально стоит 200мс, сообщение не успеть прочитать
+  toast.info(i18n.global.t("auth_required_for_certificate"), {
+    autoClose: 4000,
+  });
   return false;
 }
 
