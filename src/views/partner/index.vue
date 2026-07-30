@@ -20,12 +20,32 @@ function ssoErrorText(code, message) {
 const screen = ref("loading");
 const errorText = ref("");
 
-// Данные из URL (URLSearchParams корректно раскодирует параметры)
+// Раскодируем payload JWT (UTF-8 безопасно — имя может быть кириллицей)
+function decodeJwtPayload(token) {
+  try {
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(json);
+  } catch (e) {
+    return null;
+  }
+}
+
 const params = new URLSearchParams(window.location.search);
 const ssoToken = params.get("sso_token");
-const phone = params.get("phone");
-const name = params.get("name");
-const lang = params.get("lang") || "ru";
+const ssoPayload = ssoToken ? decodeJwtPayload(ssoToken) : null;
+
+// phone/name/lang берём из подписанного payload — они гарантированно совпадают
+// с тем, что проверяет бэкенд. URL-параметр phone может прийти с "+" или без —
+// это уже неважно, каноничные значения тянем из токена.
+const phone = ssoPayload?.phone ?? params.get("phone");
+const name = ssoPayload?.name ?? params.get("name");
+const lang = ssoPayload?.lang ?? params.get("lang") ?? "ru";
 
 const payload = () => ({
   sso_token: ssoToken,

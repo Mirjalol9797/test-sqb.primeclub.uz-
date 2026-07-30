@@ -9,7 +9,16 @@ import { onMounted } from "vue";
 onMounted(() => {
   const rawSearch = window.location.search.replace(/^\?/, "");
   const match = rawSearch.match(/(?:^|&)redirect=(.*)$/s);
-  const target = match ? match[1] : "";
+  let target = match ? match[1] : "";
+
+  // Полностью закодированный redirect (%2F.., %3F.., %3D..) — раскодируем один раз
+  if (target && !target.startsWith("/")) {
+    try {
+      target = decodeURIComponent(target);
+    } catch (e) {
+      /* оставляем как есть */
+    }
+  }
 
   if (!target.startsWith("/")) {
     // Нет redirect — гостевая витрина
