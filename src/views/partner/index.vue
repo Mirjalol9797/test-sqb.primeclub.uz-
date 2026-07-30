@@ -58,8 +58,12 @@ function offerPath() {
   return lang === "uz" ? "/uz/offer" : "/offer";
 }
 
-function goGuest() {
-  // Гостевой режим — ограниченная витрина без авторизации
+async function goGuest() {
+  // Гостевой режим: демо-авторизация (статические креды) → витрина.
+  // Каталог требует токен, поэтому без демо-логина были бы 401.
+  if (!loginStore.token) {
+    await loginStore.demoLogin();
+  }
   router.replace(offerPath());
 }
 
@@ -81,8 +85,7 @@ onMounted(async () => {
 
   // Гость: нет sso_token → демо-авторизация, затем витрина
   if (!ssoToken) {
-    await loginStore.demoLogin();
-    goGuest();
+    await goGuest();
     return;
   }
 
