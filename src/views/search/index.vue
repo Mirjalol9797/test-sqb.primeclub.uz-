@@ -46,7 +46,7 @@ watch(searchValue, (value) => {
 </script>
 
 <template>
-  <div class="max-w-[768px] mx-auto py-4 search-page px-4">
+  <div class="max-w-[768px] mx-auto py-4 search-page px-4 pt-safe">
     <SearchInput v-model="searchValue" />
 
     <div class="mt-8">

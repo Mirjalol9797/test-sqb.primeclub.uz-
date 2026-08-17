@@ -31,8 +31,26 @@ onMounted(() => {
 
 <template>
   <div class="flex items-center gap-4 mb-6">
-    <button @click="$router.back()">
-      <img src="/icons/p-offer/back-white.svg" alt="" class="w-6" />
+    <button
+      @click="$router.back()"
+      class="p-2 -ml-2 text-white hover:opacity-80 active:scale-95 transition-all flex items-center justify-center rounded-full"
+      aria-label="Back"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="w-6 h-6 text-white"
+      >
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+      </svg>
     </button>
     <div class="relative rounded-lg flex items-center w-full">
       <img

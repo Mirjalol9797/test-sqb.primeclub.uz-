@@ -143,7 +143,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="page-certificates py-10 h-[90vh] 768:pb-[100px] 480:py-6">
+  <div class="page-certificates py-4 pt-safe min-h-[90vh] 768:pb-[100px] 480:py-4">
     <!-- Добавляем компонент уведомления -->
     <transition name="toast">
       <div v-if="showToast" class="toast-notification">

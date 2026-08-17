@@ -18,6 +18,15 @@ body {
 body {
   max-width: 640px;
   margin: 0 auto;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top), 12px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 a {

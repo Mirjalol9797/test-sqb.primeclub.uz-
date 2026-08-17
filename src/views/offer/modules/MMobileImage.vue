@@ -43,10 +43,25 @@ function handleSlideChange(swiper) {
       </SwiperSlide>
     </Swiper>
     <button
-      class="absolute top-0 left-0 w-10 h-10 flex items-center justify-center z-10"
+      class="absolute top-3 left-3 z-20 p-2 text-white bg-black/40 backdrop-blur-md hover:bg-black/60 rounded-full transition-all flex items-center justify-center"
       @click="$router.back()"
+      aria-label="Back"
     >
-      <img src="/icons/p-offer/back.svg" alt="" class="w-5" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="w-5 h-5 text-white"
+      >
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+      </svg>
     </button>
     <div
       class="absolute w-full bottom-5 left-0 flex items-center justify-between px-4 text-sm 480:text-xs z-10"

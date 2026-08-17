@@ -60,7 +60,7 @@ const handleToggleFavorite = () => {
 </script>
 
 <template>
-  <div class="mb-4 w-full p-3 rounded-2xl relative border border-[#ffffff1f]">
+  <div class="mb-4 mt-3 w-full p-3 rounded-2xl relative border border-[#ffffff1f]">
     <div class="w-16 mb-4 rounded-lg">
       <img
         :src="`https://main.primeclub.uz/uploads/${merchant?.logo}`"

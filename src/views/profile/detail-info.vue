@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import { localePath } from "@/plugins/i18n";
 import { useLoginStore } from "@/stores/login";
 import axios from "@/plugins/api";
+import MainTitle from "@/components/MainTitle.vue";
 const loginStore = useLoginStore();
 const router = useRouter();
 const { t } = useI18n();
@@ -44,9 +45,9 @@ function logOut() {
 </script>
 
 <template>
-  <div class="page-profile py-10 768:pb-[100px] 480:py-6">
+  <div class="page-profile py-4 768:pb-[100px] pt-safe">
     <div class="site-container">
-      <div class="site-title">{{ $t("personal_information") }}</div>
+      <MainTitle :pageTitle="$t('personal_information')" />
 
       <div class="max-w-[800px] mx-auto rounded-lg p-6 768:p-3">
         <div class="w-[150px] h-[150px] mx-auto mb-12 768:mb-8">

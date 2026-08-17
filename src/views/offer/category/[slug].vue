@@ -157,7 +157,7 @@ onUnmounted(() => {
   </div>
 
   <div v-else class="w-full">
-    <div class="w-full bg-[#141416] border-b border-[#ffffff1f] p-4 mb-4">
+    <div class="w-full bg-[#141416] border-b border-[#ffffff1f] p-4 mb-4 pt-safe">
       <MainTitle :pageTitle="pageTitle" />
       <div class="flex items-center gap-2">
         <MSearch class="w-full" />

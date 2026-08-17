@@ -7,6 +7,7 @@ import { useSettingsStore } from "@/stores/settings";
 import { useOffersStore } from "@/stores/offers";
 import ModalCreateCertificate from "@/components/modals/ModalCreateCertificate.vue";
 import ModalCodeError from "@/components/modals/ModalCodeError.vue";
+import MainTitle from "@/components/MainTitle.vue";
 import MBreadcrumbs from "../modules/MBreadcrumbs.vue";
 import MMerchantDescription from "../modules/MMerchantDescription.vue";
 import MMerchantLocation from "../modules/MMerchantLocation.vue";
@@ -69,6 +70,8 @@ function createCertificate(offer_id, merchant_branch_id) {
   settingsStore.isCreateCertificate = true;
 }
 
+import { downloadPdfFile } from "@/utils/downloadPdf";
+
 async function downloadCertificate() {
   try {
     const certificateId = certificatesStore.createdCertificates?.id;
@@ -79,25 +82,7 @@ async function downloadCertificate() {
     const data = response?.data;
     if (!data) throw new Error("Empty response");
 
-    // Создаём новый blob при каждом нажатии
-    const blob = new Blob([data], { type: "application/pdf" });
-    const url = window.URL.createObjectURL(blob);
-
-    // Открываем в новой вкладке
-    window.open(url, "_blank");
-
-    // Скачиваем файл
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `certificate_${certificateId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    // Освобождаем память с задержкой, чтобы вкладка успела загрузить файл
-    setTimeout(() => {
-      window.URL.revokeObjectURL(url);
-    }, 2000);
+    await downloadPdfFile(data, `certificate_${certificateId}.pdf`);
   } catch (error) {
     console.error("Error downloading the certificate:", error);
   }
@@ -198,8 +183,14 @@ onUnmounted(() => {
     </div>
   </transition>
 
-  <div class="page-offer-detail pb-[100px] pt-0 bg-fff">
+  <div class="page-offer-detail pb-[100px] pt-3 pt-safe bg-fff">
     <div class="site-container">
+      <!-- Header when no slider images exist -->
+      <MainTitle
+        v-if="!(merchantsStore.oneMerchant?.images?.length > 0)"
+        :pageTitle="merchantsStore.oneMerchant?.name || ''"
+      />
+
       <!-- breadcrumbs -->
       <MBreadcrumbs
         :breadcrumbs="merchantsStore.oneMerchant"

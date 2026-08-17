@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useCertificatesStore } from "@/stores/certificates";
+import { downloadPdfFile } from "@/utils/downloadPdf";
+import MainTitle from "@/components/MainTitle.vue";
 
 const props = defineProps({
   certificateData: {
@@ -24,7 +26,7 @@ const merchant = computed(() => offer.value?.merchant || {});
 const contactName = computed(() => certificate.value?.contact_name || "-");
 const code = computed(() => certificate.value?.code || "-");
 const qrCode = computed(() => certificate.value?.qr_code || "");
-const phone = computed(() => certificate.value?.contact_phone || "");
+const phone = computed(() => certificate.value?.contact_phone || merchant.value?.phone || "");
 const address = computed(() => merchant.value?.address || "-");
 
 const logoUrl = computed(() => {
@@ -39,9 +41,11 @@ const mapPreviewUrl = computed(() => {
   return `https://static-maps.yandex.ru/1.x/?lang=ru_RU&ll=${lon},${lat}&z=15&size=650,260&l=map&pt=${lon},${lat},pm2gnm`;
 });
 
-function callMerchant() {
-  if (!phone.value) return;
-  window.location.href = `tel:${phone.value.replace(/\s+/g, "")}`;
+function callMerchant(e) {
+  if (!phone.value) {
+    e.preventDefault();
+    return;
+  }
 }
 
 async function downloadPdf() {
@@ -53,15 +57,7 @@ async function downloadPdf() {
     const data = response?.data;
     if (!data) return;
 
-    const blob = new Blob([data], { type: "application/pdf" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `certificate_${certificateId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    await downloadPdfFile(data, `certificate_${certificateId}.pdf`);
   } catch (error) {
     console.error("Ошибка скачивания PDF сертификата:", error);
   }
@@ -97,15 +93,41 @@ function closeConditionsModal() {
 </script>
 
 <template>
-  <div class="w-full text-white bg-black">
-    <button
-      type="button"
-      @click="closeModal"
-      class="absolute top-2 right-4 ml-auto min-w-8 h-8 rounded-full border border-[#e5e5ea] flex items-center justify-center text-2xl leading-none text-white z-10"
-    >
-      ×
-    </button>
-    <div class="text-xl font-semibold mb-2 text-center">Сертификат</div>
+  <div class="w-full text-white bg-black pt-safe pt-2 relative">
+    <div class="relative flex items-center justify-between mb-4">
+      <button
+        type="button"
+        @click="closeModal"
+        class="p-2 -ml-2 text-white hover:opacity-80 active:scale-95 transition-all flex items-center justify-center rounded-full"
+        aria-label="Back"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="w-6 h-6 text-white"
+        >
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <div class="text-lg font-semibold text-center flex-1 pr-6 truncate">
+        Сертификат
+      </div>
+      <button
+        type="button"
+        @click="closeModal"
+        class="w-8 h-8 rounded-full border border-[#e5e5ea] flex items-center justify-center text-xl leading-none text-white absolute right-0"
+      >
+        ×
+      </button>
+    </div>
 
     <div class="border border-[#ececf0] rounded-2xl p-4">
       <div class="flex items-start justify-between gap-3">
@@ -170,9 +192,13 @@ function closeConditionsModal() {
       >
         Скачать PDF
       </button>
-      <button type="button" class="w-full site-btn-grey" @click="callMerchant">
+      <a
+        :href="phone ? 'tel:' + phone.replace(/\s+/g, '') : '#'"
+        class="w-full site-btn-grey flex items-center justify-center"
+        @click="callMerchant"
+      >
         Позвонить в заведение
-      </button>
+      </a>
     </div>
 
     <div class="mt-6 border-t border-[#ececf0] pt-4">

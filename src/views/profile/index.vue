@@ -7,6 +7,7 @@ import { useLoginStore } from "@/stores/login";
 import { useSettingsStore } from "@/stores/settings";
 import ModalChangeLanguage from "@/components/modals/ModalChangeLanguage.vue";
 import ModalSupportService from "@/components/modals/ModalSupportService.vue";
+import MainTitle from "@/components/MainTitle.vue";
 
 const settingsStore = useSettingsStore();
 const { t } = useI18n();
@@ -21,9 +22,9 @@ function logOut() {
 </script>
 
 <template>
-  <div class="page-profile h-[90vh] pb-[100px] pt-5 py-5 relative">
+  <div class="page-profile h-[90vh] pb-[100px] pt-safe pt-2 relative">
     <div class="site-container">
-      <div class="site-title">{{ $t("my_profile") }}</div>
+      <MainTitle :pageTitle="$t('my_profile')" />
       <div class="flex flex-col gap-0">
         <div class="flex flex-col w-full mb-4">
           <router-link

@@ -257,7 +257,7 @@ onUnmounted(() => {
     </div>
   </transition>
 
-  <div class="w-full">
+  <div class="w-full pt-safe">
     <MHeaderUser />
     <!-- search -->
     <div

@@ -70,8 +70,15 @@ async function goGuest() {
 async function accept() {
   const result = await loginStore.consentSso(payload());
   if (result.ok) {
+    if (phone) {
+      localStorage.setItem(`sqb_consent_accepted_${phone}`, "true");
+    }
+    localStorage.setItem("sqb_consent_accepted", "true");
     router.replace(offerPath());
   } else {
+    // If auto-login failed on stored consent, reset consent check and show consent screen if needed
+    localStorage.removeItem("sqb_consent_accepted");
+    if (phone) localStorage.removeItem(`sqb_consent_accepted_${phone}`);
     errorText.value = ssoErrorText(result.error, result.message);
     screen.value = "error";
   }
@@ -89,8 +96,20 @@ onMounted(async () => {
     return;
   }
 
-  // Автологин (SSO): показываем экран оферты. Авторизация завершится
-  // после «Принять» вызовом consent (verify пока не используем).
+  // Проверяем, давал ли пользователь оферту ранее
+  const hasAccepted =
+    (phone && localStorage.getItem(`sqb_consent_accepted_${phone}`) === "true") ||
+    localStorage.getItem("sqb_consent_accepted") === "true" ||
+    (loginStore.token && !loginStore.isDemo);
+
+  if (hasAccepted) {
+    // Автоматически авторизуемся без повторного показа оферты
+    screen.value = "loading";
+    await accept();
+    return;
+  }
+
+  // Первый вход: показываем экран оферты
   screen.value = "consent";
 });
 </script>
