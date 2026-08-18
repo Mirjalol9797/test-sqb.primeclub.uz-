@@ -33,30 +33,6 @@ function goBack() {
 
 <template>
   <div class="flex items-center gap-2 w-full min-h-[44px] py-2">
-    <button
-      v-if="showBack"
-      @click="goBack"
-      type="button"
-      class="w-11 h-11 -ml-2.5 shrink-0 text-white hover:opacity-80 active:scale-95 transition-all flex items-center justify-center rounded-full"
-      aria-label="Назад"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="w-6 h-6"
-      >
-        <path d="M19 12H5"></path>
-        <path d="M12 19l-7-7 7-7"></path>
-      </svg>
-    </button>
-
     <div class="flex-1 min-w-0 text-lg font-semibold text-center truncate">
       {{ pageTitle }}
     </div>
