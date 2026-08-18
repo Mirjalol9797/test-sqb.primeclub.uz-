@@ -1,6 +1,9 @@
 import { defineStore } from "pinia";
 import axios from "@/plugins/api";
 
+// Ключи согласия с офертой переживают logout — см. logout() ниже.
+export const CONSENT_KEY_PREFIX = "sqb_consent_accepted";
+
 export const useLoginStore = defineStore("login", {
   state: () => ({
     token: null,
@@ -183,8 +186,18 @@ export const useLoginStore = defineStore("login", {
       this.isDemo = false;
       this.isAuthorizing = false;
       this.authError = null;
-      // Полностью очищаем localStorage
+      // Чистим localStorage, но сохраняем факт принятия оферты: выход из
+      // сессии не отменяет согласие, иначе Terms of Use всплывает при каждом
+      // входе в WebView.
+      const preserved = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(CONSENT_KEY_PREFIX)) {
+          preserved.push([key, localStorage.getItem(key)]);
+        }
+      }
       localStorage.clear();
+      preserved.forEach(([key, value]) => localStorage.setItem(key, value));
     },
   },
   persist: {

@@ -22,7 +22,7 @@ function logOut() {
 </script>
 
 <template>
-  <div class="page-profile h-[90vh] pb-[100px] pt-safe pt-2 relative">
+  <div class="page-profile h-[90vh] pb-[100px] pt-safe relative">
     <div class="site-container">
       <MainTitle :pageTitle="$t('my_profile')" />
       <div class="flex flex-col gap-0">

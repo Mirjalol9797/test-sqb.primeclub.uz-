@@ -313,5 +313,7 @@
   "login_auth_profile_title": "Sizning profilingiz",
   "login_auth_profile_hint": "Ro'yxatdan o'tishni yakunlash uchun ma'lumotlarni to'ldiring",
   "login_auth_first_name_placeholder": "Ismingizni kiriting",
-  "login_auth_last_name_placeholder": "Familiyangizni kiriting"
+  "login_auth_last_name_placeholder": "Familiyangizni kiriting",
+  "call_not_supported": "Raqam terish oynasi ochilmadi. Raqam nusxalandi: {phone}",
+  "call_not_supported_plain": "Raqam terish oynasi ochilmadi. Raqam: {phone}"
 }

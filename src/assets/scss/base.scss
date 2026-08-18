@@ -15,18 +15,40 @@ body {
   background-color: #000;
 }
 
+// Единственное место, где живёт высота статус-бара. При необходимости
+// значение переопределяет utils/safeArea.js (iOS WebView без env()).
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 body {
   max-width: 640px;
   margin: 0 auto;
-  padding-top: env(safe-area-inset-top, 0px);
+  // Компенсация статус-бара делается один раз, глобально: любой экран
+  // (включая полноширинные обложки) начинается ниже часов и иконок.
+  padding-top: var(--safe-top);
 }
 
+// Визуальный отступ страницы от хедера. Статус-бар тут уже не учитываем —
+// иначе отступ удваивался бы поверх padding-top у body.
 .pt-safe {
-  padding-top: max(env(safe-area-inset-top), 12px);
+  padding-top: 16px;
+}
+
+// Для fixed/absolute-оверлеев (полноэкранные модалки, экран оферты):
+// они выпадают из потока body и его отступ не получают, поэтому статус-бар
+// компенсируем прямо здесь.
+.pt-safe-overlay {
+  padding-top: calc(var(--safe-top) + 16px);
 }
 
 .safe-area-top {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: var(--safe-top);
+}
+
+.pb-safe {
+  padding-bottom: var(--safe-bottom);
 }
 
 a {

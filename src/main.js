@@ -25,9 +25,14 @@ import Vue3Toastify from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
 import { registerComponents } from "./plugins/components";
+import { initSafeArea } from "./utils/safeArea";
 
 import { createYmaps } from "vue-yandex-maps";
 import { getAccessToken } from "./utils/tools";
+
+// Верхний отступ под статус-бар считаем до монтирования, чтобы не было
+// «прыжка» вёрстки на первом кадре.
+initSafeArea();
 
 const app = createApp(App);
 

@@ -1,4 +1,24 @@
 <script setup>
+import { toast } from "vue3-toastify";
+import { useI18n } from "vue-i18n";
+import { callPhone, copyPhone, telHref } from "@/utils/phoneCall";
+
+const { t } = useI18n();
+
+// Набор номера открывает host-приложение. Если оно не поддерживает схему
+// tel:, копируем номер и показываем его — чтобы кнопка не была «мёртвой».
+async function onPhoneClick(phone, e) {
+  e.preventDefault();
+  const opened = await callPhone(phone);
+  if (opened) return;
+
+  const copied = await copyPhone(phone);
+  toast.info(
+    t(copied ? "call_not_supported" : "call_not_supported_plain", { phone }),
+    { autoClose: 5000 }
+  );
+}
+
 const props = defineProps({
   socials: {
     type: Object,
@@ -27,7 +47,11 @@ const props = defineProps({
         :key="index"
         class="flex items-center justify-between bg-[#141416] px-3 py-2 rounded-xl h-[52px]"
       >
-        <a :href="`tel:${phone}`" class="flex items-center gap-2">
+        <a
+          :href="telHref(phone)"
+          class="flex items-center gap-2"
+          @click="onPhoneClick(phone, $event)"
+        >
           <img src="/icons/socials/phone.svg" alt="" class="w-6" />
           <div class="font-medium text-sm">{{ phone }}</div>
         </a>

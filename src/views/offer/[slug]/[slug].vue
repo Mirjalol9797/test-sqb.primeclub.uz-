@@ -183,19 +183,20 @@ onUnmounted(() => {
     </div>
   </transition>
 
-  <div class="page-offer-detail pb-[100px] pt-3 pt-safe bg-fff">
+  <div class="page-offer-detail pb-[100px] pt-safe bg-fff">
     <div class="site-container">
-      <!-- Header when no slider images exist -->
-      <MainTitle
-        v-if="!(merchantsStore.oneMerchant?.images?.length > 0)"
-        :pageTitle="merchantsStore.oneMerchant?.name || ''"
-      />
+      <!-- Единый хедер экрана: показываем всегда, чтобы кнопка «Назад» была
+           ровно одна и не плавала поверх обложки -->
+      <MainTitle :pageTitle="merchantsStore.oneMerchant?.name || ''" />
 
       <!-- breadcrumbs -->
       <MBreadcrumbs
         :breadcrumbs="merchantsStore.oneMerchant"
         class="768:hidden"
       />
+
+      <!-- Отступ между хедером и первым контейнером страницы -->
+      <div class="h-3"></div>
 
       <!-- mobile image -->
       <MMobileImage

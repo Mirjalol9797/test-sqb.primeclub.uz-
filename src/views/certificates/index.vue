@@ -349,7 +349,7 @@ onUnmounted(() => {
 
     <div
       v-if="isCertificateDetailOpen && selectedCertificateDetail"
-      class="fixed inset-0 z-[80] bg-black overflow-y-auto px-4 pt-4 pb-8 max-w-[640px] mx-auto"
+      class="fixed inset-0 z-[80] bg-black overflow-y-auto px-4 pb-8 max-w-[640px] mx-auto"
     >
       <CertificateDetailInfo
         :certificate-data="selectedCertificateDetail"

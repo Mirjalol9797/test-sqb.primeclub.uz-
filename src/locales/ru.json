@@ -312,5 +312,7 @@
   "login_auth_profile_title": "Ваш профиль",
   "login_auth_profile_hint": "Заполните данные для завершения регистрации",
   "login_auth_first_name_placeholder": "Введите имя",
-  "login_auth_last_name_placeholder": "Введите фамилию"
+  "login_auth_last_name_placeholder": "Введите фамилию",
+  "call_not_supported": "Не удалось открыть набор номера. Номер скопирован: {phone}",
+  "call_not_supported_plain": "Не удалось открыть набор номера. Номер: {phone}"
 }

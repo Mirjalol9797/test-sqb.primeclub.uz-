@@ -2,7 +2,7 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { useLoginStore } from "@/stores/login";
+import { useLoginStore, CONSENT_KEY_PREFIX } from "@/stores/login";
 import { setLocale, SUPPORTED_LOCALES } from "@/plugins/i18n";
 
 const router = useRouter();
@@ -71,14 +71,14 @@ async function accept() {
   const result = await loginStore.consentSso(payload());
   if (result.ok) {
     if (phone) {
-      localStorage.setItem(`sqb_consent_accepted_${phone}`, "true");
+      localStorage.setItem(`${CONSENT_KEY_PREFIX}_${phone}`, "true");
     }
-    localStorage.setItem("sqb_consent_accepted", "true");
+    localStorage.setItem(CONSENT_KEY_PREFIX, "true");
     router.replace(offerPath());
   } else {
-    // If auto-login failed on stored consent, reset consent check and show consent screen if needed
-    localStorage.removeItem("sqb_consent_accepted");
-    if (phone) localStorage.removeItem(`sqb_consent_accepted_${phone}`);
+    // Флаг согласия НЕ сбрасываем: неуспешный автологин (протухший/повторно
+    // использованный sso_token) — это проблема авторизации, а не отзыв
+    // оферты. Раньше сброс приводил к показу Terms of Use при каждом входе.
     errorText.value = ssoErrorText(result.error, result.message);
     screen.value = "error";
   }
@@ -98,8 +98,9 @@ onMounted(async () => {
 
   // Проверяем, давал ли пользователь оферту ранее
   const hasAccepted =
-    (phone && localStorage.getItem(`sqb_consent_accepted_${phone}`) === "true") ||
-    localStorage.getItem("sqb_consent_accepted") === "true" ||
+    (phone &&
+      localStorage.getItem(`${CONSENT_KEY_PREFIX}_${phone}`) === "true") ||
+    localStorage.getItem(CONSENT_KEY_PREFIX) === "true" ||
     (loginStore.token && !loginStore.isDemo);
 
   if (hasAccepted) {
@@ -126,7 +127,7 @@ onMounted(async () => {
     <!-- Экран оферты -->
     <div
       v-else-if="screen === 'consent'"
-      class="min-h-full flex-1 flex flex-col justify-between px-6 pt-14 pb-10"
+      class="min-h-full flex-1 flex flex-col justify-between px-6 pt-[calc(var(--safe-top)+3.5rem)] pb-10"
     >
       <div class="text-center">
         <div class="text-2xl font-bold leading-none">SQB Premium</div>

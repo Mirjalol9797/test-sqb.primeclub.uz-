@@ -1,7 +1,8 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { useCertificatesStore } from "@/stores/certificates";
 import { downloadPdfFile } from "@/utils/downloadPdf";
+import { callPhone, copyPhone, normalizePhone, telHref } from "@/utils/phoneCall";
 import MainTitle from "@/components/MainTitle.vue";
 
 const props = defineProps({
@@ -41,12 +42,58 @@ const mapPreviewUrl = computed(() => {
   return `https://static-maps.yandex.ru/1.x/?lang=ru_RU&ll=${lon},${lat}&z=15&size=650,260&l=map&pt=${lon},${lat},pm2gnm`;
 });
 
-function callMerchant(e) {
-  if (!phone.value) {
-    e.preventDefault();
-    return;
+const phoneNumber = computed(() => normalizePhone(phone.value));
+const phoneLink = computed(() => telHref(phone.value));
+
+const isCalling = ref(false);
+const isCallFallbackOpen = ref(false);
+const isPhoneCopied = ref(false);
+
+// Набор номера открывает host-приложение, а не мы. Поэтому: пробуем позвонить,
+// и если приложение не ушло в фон — показываем номер с копированием, чтобы
+// кнопка не оказалась «мёртвой».
+async function callMerchant(e) {
+  e.preventDefault();
+  if (!phoneNumber.value || isCalling.value) return;
+
+  isCalling.value = true;
+  try {
+    const opened = await callPhone(phoneNumber.value);
+    if (!opened) {
+      isPhoneCopied.value = false;
+      isCallFallbackOpen.value = true;
+    }
+  } finally {
+    isCalling.value = false;
   }
 }
+
+function closeCallFallback() {
+  isCallFallbackOpen.value = false;
+}
+
+async function copyMerchantPhone() {
+  isPhoneCopied.value = await copyPhone(phoneNumber.value);
+}
+
+// Если натив показывает системный запрос «Позвонить?», страница уходит в фон
+// не сразу и мы успеваем открыть запасной вариант. Как только звонок всё-таки
+// начался — убираем его, чтобы он не ждал пользователя по возвращении.
+function closeFallbackOnHide() {
+  if (document.hidden) closeCallFallback();
+}
+
+watch(isCallFallbackOpen, (isOpen) => {
+  if (isOpen) {
+    document.addEventListener("visibilitychange", closeFallbackOnHide);
+  } else {
+    document.removeEventListener("visibilitychange", closeFallbackOnHide);
+  }
+});
+
+onUnmounted(() => {
+  document.removeEventListener("visibilitychange", closeFallbackOnHide);
+});
 
 async function downloadPdf() {
   try {
@@ -93,41 +140,8 @@ function closeConditionsModal() {
 </script>
 
 <template>
-  <div class="w-full text-white bg-black pt-safe pt-2 relative">
-    <div class="relative flex items-center justify-between mb-4">
-      <button
-        type="button"
-        @click="closeModal"
-        class="p-2 -ml-2 text-white hover:opacity-80 active:scale-95 transition-all flex items-center justify-center rounded-full"
-        aria-label="Back"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="w-6 h-6 text-white"
-        >
-          <path d="M19 12H5"></path>
-          <path d="M12 19l-7-7 7-7"></path>
-        </svg>
-      </button>
-      <div class="text-lg font-semibold text-center flex-1 pr-6 truncate">
-        Сертификат
-      </div>
-      <button
-        type="button"
-        @click="closeModal"
-        class="w-8 h-8 rounded-full border border-[#e5e5ea] flex items-center justify-center text-xl leading-none text-white absolute right-0"
-      >
-        ×
-      </button>
-    </div>
+  <div class="w-full text-white bg-black pt-safe-overlay relative">
+    <MainTitle pageTitle="Сертификат" class="mb-4" @back="closeModal" />
 
     <div class="border border-[#ececf0] rounded-2xl p-4">
       <div class="flex items-start justify-between gap-3">
@@ -193,8 +207,10 @@ function closeConditionsModal() {
         Скачать PDF
       </button>
       <a
-        :href="phone ? 'tel:' + phone.replace(/\s+/g, '') : '#'"
+        :href="phoneLink || undefined"
         class="w-full site-btn-grey flex items-center justify-center"
+        :class="{ 'opacity-50 pointer-events-none': !phoneNumber }"
+        :aria-disabled="!phoneNumber"
         @click="callMerchant"
       >
         Позвонить в заведение
@@ -302,6 +318,45 @@ function closeConditionsModal() {
           class="text-[#5e6068] text-sm leading-relaxed"
           v-html="certificate.conditions?.text || 'Информация отсутствует'"
         ></div>
+      </div>
+    </div>
+
+    <!-- Запасной вариант, если host-приложение не открыло набор номера -->
+    <div
+      v-if="isCallFallbackOpen"
+      class="fixed inset-0 z-[70] bg-black/40 flex items-end max-w-[640px] mx-auto"
+      @click.self="closeCallFallback"
+    >
+      <div class="w-full bg-white rounded-t-3xl px-5 pt-4 pb-6 text-[#1f1f27]">
+        <div class="w-14 h-1.5 bg-[#d6d6dc] rounded-full mx-auto mb-5"></div>
+        <div class="relative pr-12">
+          <button
+            type="button"
+            class="absolute right-0 top-0 w-10 h-10 rounded-full bg-[#f1f1f4] flex items-center justify-center text-2xl text-[#2d2d34]"
+            @click="closeCallFallback"
+          >
+            ×
+          </button>
+          <div class="text-lg font-semibold mb-1">Телефон заведения</div>
+          <div class="text-[#8b8f98] text-sm mb-3">
+            Не удалось открыть набор номера — позвоните вручную
+          </div>
+        </div>
+
+        <a
+          :href="phoneLink"
+          class="block text-2xl font-bold tracking-wide mb-4 break-all"
+        >
+          {{ phoneNumber }}
+        </a>
+
+        <button
+          type="button"
+          class="w-full h-12 rounded-2xl bg-[#141416] text-white text-base font-semibold"
+          @click="copyMerchantPhone"
+        >
+          {{ isPhoneCopied ? "Номер скопирован" : "Скопировать номер" }}
+        </button>
       </div>
     </div>
   </div>

@@ -36,7 +36,7 @@ onMounted(async () => {
 
 <template>
   <div
-    class="fixed inset-0 z-50 bg-[#141416] overflow-y-auto p-4 max-w-[640px] mx-auto"
+    class="fixed inset-0 z-50 bg-[#141416] overflow-y-auto p-4 pt-safe-overlay max-w-[640px] mx-auto"
   >
     <MainTitle :pageTitle="$t('filter')" />
 

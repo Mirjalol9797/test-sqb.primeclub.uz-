@@ -168,7 +168,7 @@ onUnmounted(() => {
 
     <div
       v-else
-      class="absolute inset-0 bg-black overflow-y-auto px-4 pt-4 pb-8"
+      class="absolute inset-0 bg-black overflow-y-auto px-4 pb-8"
     >
       <CertificateDetailInfo
         :certificate-data="certificateDetailData"
