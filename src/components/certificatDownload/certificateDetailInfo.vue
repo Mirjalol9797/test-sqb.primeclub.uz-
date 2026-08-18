@@ -346,6 +346,7 @@ function closeConditionsModal() {
         <a
           :href="phoneLink"
           class="block text-2xl font-bold tracking-wide mb-4 break-all"
+          @click="callMerchant"
         >
           {{ phoneNumber }}
         </a>

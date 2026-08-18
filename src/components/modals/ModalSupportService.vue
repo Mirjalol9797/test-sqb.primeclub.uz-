@@ -4,12 +4,33 @@ import { useSettingsStore } from "@/stores/settings";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { setLocale } from "@/plugins/i18n";
+import { toast } from "vue3-toastify";
+import { callPhone, copyPhone, telHref } from "@/utils/phoneCall";
 
 const settingsStore = useSettingsStore();
-const { locale } = useI18n();
+const { locale, t } = useI18n();
 const route = useRoute();
 
 const currentLocale = computed(() => locale.value);
+
+const SUPPORT_PHONE = "+998555170909";
+const supportPhoneLink = telHref(SUPPORT_PHONE);
+
+// Прямой переход на tel: в Android WebView уводит на ERR_UNKNOWN_URL_SCHEME
+// и убивает приложение, поэтому переход всегда перехватываем.
+async function callSupport(e) {
+  e.preventDefault();
+  const opened = await callPhone(SUPPORT_PHONE);
+  if (opened) return;
+
+  const copied = await copyPhone(SUPPORT_PHONE);
+  toast.info(
+    t(copied ? "call_not_supported" : "call_not_supported_plain", {
+      phone: SUPPORT_PHONE,
+    }),
+    { autoClose: 5000 }
+  );
+}
 
 function closeModal() {
   settingsStore.isModalSupportService = false;
@@ -40,8 +61,9 @@ function closeModal() {
         <div class="flex justify-between flex-col items-center">
           <div class="mb-1 text-666">{{ $t("or_call_us") }}</div>
           <a
-            href="tel:+998555170909"
+            :href="supportPhoneLink"
             class="text-00b08c font-semibold text-lg hover:underline"
+            @click="callSupport"
             >+998(55) 517-09-09</a
           >
         </div>

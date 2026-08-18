@@ -7,10 +7,19 @@
  * `decidePolicyFor` → `UIApplication.open` (iOS) или `shouldOverrideUrlLoading`
  * → `ACTION_DIAL` (Android). Без этого ни один JS-приём не поможет.
  *
- * Что делает этот модуль: перебирает все способы открыть номер, какие вообще
- * доступны из JS, и честно сообщает, сработало ли. Если не сработало —
- * вызывающий код показывает номер с копированием, чтобы кнопка никогда
- * не оказалась «мёртвой».
+ * Что делает этот модуль: перебирает доступные из JS способы открыть номер
+ * и честно сообщает, сработало ли. Если не сработало — вызывающий код
+ * показывает номер с копированием, чтобы кнопка никогда не оказалась
+ * «мёртвой».
+ *
+ * ВАЖНО, про разницу платформ:
+ *   Android WebView на необработанной схеме `tel:` не просто ничего не делает,
+ *   а уводит страницу на net::ERR_UNKNOWN_URL_SCHEME — SPA умирает вместе со
+ *   всем состоянием. Поэтому на Android переход верхнего уровня запрещён,
+ *   пробуем только скрытый iframe: если схема не поддержана, ошибка остаётся
+ *   внутри фрейма и приложение живёт.
+ *   iOS WKWebView необработанную схему просто отменяет, страница не страдает,
+ *   поэтому там переход верхнего уровня допустим.
  */
 
 // Контракт для нативной команды. Если натив зарегистрирует такой обработчик,
@@ -34,6 +43,15 @@ export function normalizePhone(raw) {
 export function telHref(raw) {
   const phone = normalizePhone(raw);
   return phone ? `tel:${phone}` : "";
+}
+
+function isIos() {
+  const ua = navigator.userAgent || "";
+  const isIpadOs =
+    /Macintosh/.test(ua) &&
+    typeof document !== "undefined" &&
+    "ontouchend" in document;
+  return /iPad|iPhone|iPod/.test(ua) || isIpadOs;
 }
 
 function callViaNativeBridge(phone) {
@@ -116,31 +134,23 @@ export function callPhone(raw) {
     document.addEventListener("visibilitychange", onHidden);
     window.addEventListener("pagehide", onLeave);
 
-    // Каскад: каждый следующий способ пробуем, только если предыдущий
-    // не увёл приложение в фон.
-    try {
-      window.location.href = href;
-    } catch (e) {
-      /* следующий шаг каскада */
+    // Безопасный для обеих платформ способ: ошибка схемы остаётся в iframe.
+    callViaIframe(href);
+
+    // Переход верхнего уровня — только на iOS, и только если iframe
+    // не сработал. На Android это сломало бы приложение (см. шапку файла).
+    if (isIos()) {
+      timers.push(
+        setTimeout(() => {
+          if (settled) return;
+          try {
+            window.location.href = href;
+          } catch (e) {
+            /* отдадим false по таймауту */
+          }
+        }, STEP_DELAY_MS)
+      );
     }
-
-    timers.push(
-      setTimeout(() => {
-        if (settled) return;
-        callViaIframe(href);
-      }, STEP_DELAY_MS)
-    );
-
-    timers.push(
-      setTimeout(() => {
-        if (settled) return;
-        try {
-          window.open(href, "_self");
-        } catch (e) {
-          /* последний шаг — просто отдадим false */
-        }
-      }, STEP_DELAY_MS * 2)
-    );
 
     timers.push(setTimeout(() => finish(false), DETECT_TIMEOUT_MS));
   });
