@@ -28,7 +28,7 @@ const IOS_HANDLER_NAME = "sqbNative"; // window.webkit.messageHandlers.sqbNative
 const ANDROID_BRIDGE_NAMES = ["SqbApp", "AndroidBridge", "NativeBridge"];
 
 // Сколько ждём ухода приложения в фон, прежде чем считать попытку неудачной.
-const DETECT_TIMEOUT_MS = 1500;
+const DETECT_TIMEOUT_MS = 1000;
 // Пауза между попытками внутри каскада.
 const STEP_DELAY_MS = 400;
 
@@ -97,20 +97,31 @@ function callViaIframe(href) {
   }
 }
 
+export const CALL_OPENED = "opened";
+export const CALL_FAILED = "failed";
+export const CALL_BUSY = "busy";
+
+// Одна попытка звонка за раз. Без этого десять быстрых тапов запускали
+// десять параллельных попыток и десять уведомлений.
+let pendingCall = null;
+
 /**
- * Пытается позвонить. Возвращает Promise<boolean>:
- * true  — приложение ушло в фон, значит набор номера открылся;
- * false — ничего не произошло, показывайте запасной вариант.
+ * Пытается позвонить. Возвращает Promise с одним из состояний:
+ *   CALL_OPENED — приложение ушло в фон, набор номера открылся;
+ *   CALL_FAILED — ничего не произошло, показывайте запасной вариант;
+ *   CALL_BUSY   — попытка уже идёт, ничего показывать не надо.
  */
 export function callPhone(raw) {
   const phone = normalizePhone(raw);
-  if (!phone) return Promise.resolve(false);
+  if (!phone) return Promise.resolve(CALL_FAILED);
+  if (pendingCall) return Promise.resolve(CALL_BUSY);
+
   const href = `tel:${phone}`;
 
   // Мост в натив — единственный надёжный путь, эвристика не нужна.
-  if (callViaNativeBridge(phone)) return Promise.resolve(true);
+  if (callViaNativeBridge(phone)) return Promise.resolve(CALL_OPENED);
 
-  return new Promise((resolve) => {
+  pendingCall = new Promise((resolve) => {
     let settled = false;
     const timers = [];
 
@@ -120,15 +131,16 @@ export function callPhone(raw) {
       timers.forEach(clearTimeout);
       document.removeEventListener("visibilitychange", onHidden);
       window.removeEventListener("pagehide", onLeave);
+      pendingCall = null;
       resolve(result);
     }
 
     // Уход страницы в фон = набор номера открылся поверх WebView.
     function onHidden() {
-      if (document.hidden) finish(true);
+      if (document.hidden) finish(CALL_OPENED);
     }
     function onLeave() {
-      finish(true);
+      finish(CALL_OPENED);
     }
 
     document.addEventListener("visibilitychange", onHidden);
@@ -152,8 +164,10 @@ export function callPhone(raw) {
       );
     }
 
-    timers.push(setTimeout(() => finish(false), DETECT_TIMEOUT_MS));
+    timers.push(setTimeout(() => finish(CALL_FAILED), DETECT_TIMEOUT_MS));
   });
+
+  return pendingCall;
 }
 
 export async function copyPhone(raw) {

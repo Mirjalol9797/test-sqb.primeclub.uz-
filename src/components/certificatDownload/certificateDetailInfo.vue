@@ -2,7 +2,13 @@
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useCertificatesStore } from "@/stores/certificates";
 import { downloadPdfFile } from "@/utils/downloadPdf";
-import { callPhone, copyPhone, normalizePhone, telHref } from "@/utils/phoneCall";
+import {
+  CALL_FAILED,
+  callPhone,
+  copyPhone,
+  normalizePhone,
+  telHref,
+} from "@/utils/phoneCall";
 import MainTitle from "@/components/MainTitle.vue";
 
 const props = defineProps({
@@ -58,8 +64,9 @@ async function callMerchant(e) {
 
   isCalling.value = true;
   try {
-    const opened = await callPhone(phoneNumber.value);
-    if (!opened) {
+    // Шторку открываем только на честной неудаче: CALL_BUSY означает, что
+    // попытка уже идёт, и второй раз показывать её не нужно.
+    if ((await callPhone(phoneNumber.value)) === CALL_FAILED) {
       isPhoneCopied.value = false;
       isCallFallbackOpen.value = true;
     }

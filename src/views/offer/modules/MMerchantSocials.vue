@@ -1,7 +1,7 @@
 <script setup>
 import { toast } from "vue3-toastify";
 import { useI18n } from "vue-i18n";
-import { callPhone, copyPhone, telHref } from "@/utils/phoneCall";
+import { CALL_FAILED, callPhone, copyPhone, telHref } from "@/utils/phoneCall";
 
 const { t } = useI18n();
 
@@ -9,13 +9,13 @@ const { t } = useI18n();
 // tel:, копируем номер и показываем его — чтобы кнопка не была «мёртвой».
 async function onPhoneClick(phone, e) {
   e.preventDefault();
-  const opened = await callPhone(phone);
-  if (opened) return;
+  if ((await callPhone(phone)) !== CALL_FAILED) return;
 
   const copied = await copyPhone(phone);
   toast.info(
     t(copied ? "call_not_supported" : "call_not_supported_plain", { phone }),
-    { autoClose: 5000 }
+    // toastId не даёт уведомлению задублироваться при повторных тапах
+    { autoClose: 5000, toastId: `call-fallback-${phone}` }
   );
 }
 

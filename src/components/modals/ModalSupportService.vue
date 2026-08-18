@@ -5,7 +5,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { setLocale } from "@/plugins/i18n";
 import { toast } from "vue3-toastify";
-import { callPhone, copyPhone, telHref } from "@/utils/phoneCall";
+import { CALL_FAILED, callPhone, copyPhone, telHref } from "@/utils/phoneCall";
 
 const settingsStore = useSettingsStore();
 const { locale, t } = useI18n();
@@ -20,15 +20,15 @@ const supportPhoneLink = telHref(SUPPORT_PHONE);
 // и убивает приложение, поэтому переход всегда перехватываем.
 async function callSupport(e) {
   e.preventDefault();
-  const opened = await callPhone(SUPPORT_PHONE);
-  if (opened) return;
+  if ((await callPhone(SUPPORT_PHONE)) !== CALL_FAILED) return;
 
   const copied = await copyPhone(SUPPORT_PHONE);
   toast.info(
     t(copied ? "call_not_supported" : "call_not_supported_plain", {
       phone: SUPPORT_PHONE,
     }),
-    { autoClose: 5000 }
+    // toastId не даёт уведомлению задублироваться при повторных тапах
+    { autoClose: 5000, toastId: "call-fallback-support" }
   );
 }
 
