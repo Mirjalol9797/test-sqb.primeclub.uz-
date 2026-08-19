@@ -1,3 +1,5 @@
+import { callViaNative } from "./nativeBridge";
+
 /**
  * Звонок из WebView.
  *
@@ -21,11 +23,6 @@
  *   iOS WKWebView необработанную схему просто отменяет, страница не страдает,
  *   поэтому там переход верхнего уровня допустим.
  */
-
-// Контракт для нативной команды. Если натив зарегистрирует такой обработчик,
-// звонок пойдёт напрямую, без всяких эвристик.
-const IOS_HANDLER_NAME = "sqbNative"; // window.webkit.messageHandlers.sqbNative
-const ANDROID_BRIDGE_NAMES = ["SqbApp", "AndroidBridge", "NativeBridge"];
 
 // Сколько ждём ухода приложения в фон, прежде чем считать попытку неудачной.
 const DETECT_TIMEOUT_MS = 1000;
@@ -52,33 +49,6 @@ function isIos() {
     typeof document !== "undefined" &&
     "ontouchend" in document;
   return /iPad|iPhone|iPod/.test(ua) || isIpadOs;
-}
-
-function callViaNativeBridge(phone) {
-  try {
-    const iosHandler = window.webkit?.messageHandlers?.[IOS_HANDLER_NAME];
-    if (iosHandler?.postMessage) {
-      iosHandler.postMessage({ action: "call", phone });
-      return true;
-    }
-  } catch (e) {
-    /* мост недоступен — идём дальше по каскаду */
-  }
-
-  for (const name of ANDROID_BRIDGE_NAMES) {
-    try {
-      const bridge = window[name];
-      const method = bridge?.call || bridge?.makeCall || bridge?.dial;
-      if (typeof method === "function") {
-        method.call(bridge, phone);
-        return true;
-      }
-    } catch (e) {
-      /* пробуем следующий мост */
-    }
-  }
-
-  return false;
 }
 
 // Некоторые WebView игнорируют присваивание location, но выполняют переход
@@ -119,7 +89,7 @@ export function callPhone(raw) {
   const href = `tel:${phone}`;
 
   // Мост в натив — единственный надёжный путь, эвристика не нужна.
-  if (callViaNativeBridge(phone)) return Promise.resolve(CALL_OPENED);
+  if (callViaNative(phone)) return Promise.resolve(CALL_OPENED);
 
   pendingCall = new Promise((resolve) => {
     let settled = false;
