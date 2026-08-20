@@ -7,7 +7,7 @@ const props = defineProps({
 });
 </script>
 <template>
-  <div class="text-xl font-medium mb-6 768:text-base 768:mb-3">Новые места</div>
+  <div class="text-xl font-medium mb-6 768:text-base 768:mb-3">{{ $t("new_places") }}</div>
   <div class="flex overflow-x-auto">
     <div class="flex gap-4 flex-nowrap min-w-max">
       <router-link

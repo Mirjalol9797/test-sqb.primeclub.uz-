@@ -8,7 +8,7 @@ const settingsStore = useSettingsStore();
 <template>
   <ui-mobile-modal
     v-model="settingsStore.isFilterCategories"
-    title="Фильтры"
+    :title="$t('filters')"
     width="560"
     :closeBtn="true"
     titleClass=""

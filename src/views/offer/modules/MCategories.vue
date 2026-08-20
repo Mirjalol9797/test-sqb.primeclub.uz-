@@ -74,7 +74,7 @@ const hasHiddenCategories = computed(
         >
           <img
             :src="buildCategoryIconDataUrl('all', !route.params.slug)"
-            alt="все"
+            :alt="$t('all')"
             class="w-10 h-10"
           />
         </div>

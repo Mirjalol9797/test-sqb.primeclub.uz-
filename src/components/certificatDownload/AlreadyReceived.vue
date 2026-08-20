@@ -2,17 +2,28 @@
 // Шторка «Сертификат уже получен». Оформление один в один со шагом
 // «Вы уже здесь?» из ModalGlobalDownloadCertificate: тёмный фон, та же
 // ручка, та же кнопка закрытия, те же типографика и кнопки.
-defineProps({
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+const props = defineProps({
   title: {
     type: String,
-    default: "Сертификат уже получен",
+    default: "",
   },
   description: {
     type: String,
-    default:
-      "Вы уже получали сертификат в этом заведении сегодня. Найти его можно в разделе Сертификаты",
+    default: "",
   },
 });
+
+const { t } = useI18n();
+
+// Текст приходит либо от бэка через пропсы, либо берётся из перевода.
+// В defineProps дефолт с t() поставить нельзя — макрос не видит переменные setup.
+const titleText = computed(() => props.title || t("certificate_already_received"));
+const descriptionText = computed(
+  () => props.description || t("certificate_already_received_desc")
+);
 
 const emit = defineEmits(["close", "go-certificates"]);
 </script>
@@ -31,8 +42,8 @@ const emit = defineEmits(["close", "go-certificates"]);
         ×
       </button>
 
-      <div class="text-base font-semibold mb-1 pr-12">{{ title }}</div>
-      <div class="text-sm text-[#5e6068] mb-3">{{ description }}</div>
+      <div class="text-base font-semibold mb-1 pr-12">{{ titleText }}</div>
+      <div class="text-sm text-[#5e6068] mb-3">{{ descriptionText }}</div>
 
       <button
         type="button"

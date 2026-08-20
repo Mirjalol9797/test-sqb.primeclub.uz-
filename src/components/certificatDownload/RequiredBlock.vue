@@ -278,8 +278,7 @@ async function submitComePlanFlow() {
       <div v-if="showWeekInputs" class="mb-3">
         <div class="text-sm text-[#5e6068] mb-2">
           {{
-            comePlanData.post_select?.week_label ||
-            "Выберите день и примерное время:"
+            comePlanData.post_select?.week_label || $t("select_day_and_time")
           }}
         </div>
         <div class="flex flex-wrap gap-2 mb-3 week-days">
@@ -299,7 +298,7 @@ async function submitComePlanFlow() {
         </div>
 
         <div class="text-sm text-[#5e6068] mb-2">
-          {{ comePlanData.post_select?.time_label || "Время:" }}
+          {{ comePlanData.post_select?.time_label || $t("time_label") }}
         </div>
         <div class="flex items-center gap-2 mb-2">
           <select
@@ -329,7 +328,7 @@ async function submitComePlanFlow() {
         <div class="text-sm text-[#5e6068]">
           {{
             comePlanData.post_select?.week_cta_hint ||
-            "Кнопка станет активной после выбора дня."
+            $t("button_active_after_day")
           }}
         </div>
       </div>

@@ -1,8 +1,8 @@
 <template>
   <img
     src="@/assets/images/copy-text.svg"
-    alt="Скопировать"
-    title="Скопировать"
+    :alt="$t('copy_title')"
+    :title="$t('copy_title')"
     @click="copyData"
     class="w-5 ml-3 cursor-pointer"
   />

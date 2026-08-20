@@ -49,7 +49,7 @@ function selectBranch(branch) {
           <div class="text-xs">{{ branch.address }}</div>
         </div>
         <div v-if="props.branches.length === 0" class="px-4 py-3 text-sm">
-          Ничего не найдено
+          {{ $t("nothing_found") }}
         </div>
       </div>
     </template>

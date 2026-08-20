@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import { useCertificatesStore } from "@/stores/certificates";
 import { downloadPdfFile } from "@/utils/downloadPdf";
-import { callPhone, normalizePhone, telHref } from "@/utils/phoneCall";
+import { callPhone, normalizePhone } from "@/utils/phoneCall";
 import MainTitle from "@/components/MainTitle.vue";
 
 const props = defineProps({
@@ -15,6 +15,7 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 const certificatesStore = useCertificatesStore();
 const isCodeInfoModalOpen = ref(false);
+const isCallModalOpen = ref(false);
 const isDiscountInfoModalOpen = ref(false);
 const isConditionsModalOpen = ref(false);
 
@@ -27,7 +28,9 @@ const merchant = computed(() => offer.value?.merchant || {});
 const contactName = computed(() => certificate.value?.contact_name || "-");
 const code = computed(() => certificate.value?.code || "-");
 const qrCode = computed(() => certificate.value?.qr_code || "");
-const phone = computed(() => certificate.value?.contact_phone || merchant.value?.phone || "");
+const phone = computed(
+  () => certificate.value?.contact_phone || merchant.value?.phone || ""
+);
 const address = computed(() => merchant.value?.address || "-");
 
 const logoUrl = computed(() => {
@@ -43,15 +46,31 @@ const mapPreviewUrl = computed(() => {
 });
 
 const phoneNumber = computed(() => normalizePhone(phone.value));
-const phoneLink = computed(() => telHref(phone.value));
+
+// Номер для показа в модалке: узбекские номера разбиваем как
+// +998 XX-XXX-XX-XX, остальные показываем в том виде, в каком их отдал бэк.
+const phoneDisplay = computed(() => {
+  const digits = phoneNumber.value.replace(/\D/g, "");
+  const uz = digits.match(/^998(\d{2})(\d{3})(\d{2})(\d{2})$/);
+  if (uz) return `+998 ${uz[1]}-${uz[2]}-${uz[3]}-${uz[4]}`;
+  return phone.value || "";
+});
 
 const isCalling = ref(false);
 
-// Переход на tel: перехватываем всегда: в Android WebView необработанная схема
-// уводит страницу на ERR_UNKNOWN_URL_SCHEME и убивает SPA. Если host-приложение
-// набор номера не открыло — просто ничего не показываем.
-async function callMerchant(e) {
-  e.preventDefault();
+function openCallModal() {
+  if (!phoneNumber.value) return;
+  isCallModalOpen.value = true;
+}
+
+function closeCallModal() {
+  isCallModalOpen.value = false;
+}
+
+// Звоним только после подтверждения в модалке. Переход на tel: идёт через
+// callPhone: в Android WebView необработанная схема уводит страницу на
+// ERR_UNKNOWN_URL_SCHEME и убивает SPA.
+async function confirmCall() {
   if (!phoneNumber.value || isCalling.value) return;
 
   isCalling.value = true;
@@ -59,6 +78,7 @@ async function callMerchant(e) {
     await callPhone(phoneNumber.value);
   } finally {
     isCalling.value = false;
+    isCallModalOpen.value = false;
   }
 }
 
@@ -108,7 +128,7 @@ function closeConditionsModal() {
 
 <template>
   <div class="w-full text-white bg-black pt-safe-overlay relative">
-    <MainTitle pageTitle="Сертификат" class="mb-4" @back="closeModal" />
+    <MainTitle :pageTitle="$t('certificate')" class="mb-4" @back="closeModal" />
 
     <div class="border border-[#ececf0] rounded-2xl p-4">
       <div class="flex items-start justify-between gap-3">
@@ -121,7 +141,7 @@ function closeConditionsModal() {
       </div>
 
       <div class="flex items-center justify-between mt-4 text-sm">
-        <div class="  ">Контактное лицо</div>
+        <div class="  ">{{ $t("contact_person") }}</div>
         <div class="font-semibold text-right">{{ contactName }}</div>
       </div>
     </div>
@@ -129,7 +149,7 @@ function closeConditionsModal() {
     <div class="border border-[#ececf0] rounded-2xl p-4 mt-4">
       <div class="flex items-center justify-between gap-4">
         <div>
-          <div class="text-xs uppercase">Код сертификата</div>
+          <div class="text-xs uppercase">{{ $t("certificate_code") }}</div>
           <div class="text-xl font-bold mt-1 break-all">{{ code }}</div>
         </div>
         <div class="w-24 h-24 rounded-xl border border-[#ececf0] p-2 bg-[#eee]">
@@ -142,50 +162,52 @@ function closeConditionsModal() {
         class="mt-2 underline text-sm"
         @click="openCodeInfoModal"
       >
-        Что делать с этим кодом?
+        {{ $t("what_to_do_with_code") }}
       </button>
     </div>
 
     <div class="rounded-2xl bg-[#141416] p-4 mt-4 text-sm">
-      Достаточно показать код или QR на экране, не обязательно скачивать PDF
+      {{ $t("code_or_qr_enough") }}
     </div>
 
     <div class="mt-6">
-      <div class="text-lg font-semibold mb-3">Действия</div>
+      <div class="text-lg font-semibold mb-3">{{ $t("actions") }}</div>
       <button
         type="button"
         class="w-full site-btn-grey mb-3"
         @click="openDiscountInfoModal"
       >
-        Как получить скидку?
+        {{ $t("how_to_get_discount") }}
       </button>
       <button
         type="button"
         class="w-full site-btn-grey mb-3"
         @click="openConditionsModal"
       >
-        Условия
+        {{ $t("terms") }}
       </button>
       <button
         type="button"
         class="w-full site-btn-grey mb-3"
         @click="downloadPdf"
       >
-        Скачать PDF
+        {{ $t("download_pdf") }}
       </button>
-      <a
-        :href="phoneLink || undefined"
-        class="w-full site-btn-grey flex items-center justify-center"
+      <button
+        type="button"
+        class="w-full site-btn-grey"
         :class="{ 'opacity-50 pointer-events-none': !phoneNumber }"
-        :aria-disabled="!phoneNumber"
-        @click="callMerchant"
+        :disabled="!phoneNumber"
+        @click="openCallModal"
       >
-        Позвонить в заведение
-      </a>
+        {{ $t("call_establishment") }}
+      </button>
     </div>
 
     <div class="mt-6 border-t border-[#ececf0] pt-4">
-      <div class="text-lg font-semibold mb-2">Адрес заведения</div>
+      <div class="text-lg font-semibold mb-2">
+        {{ $t("establishment_address") }}
+      </div>
       <div class="text-sm mb-3">{{ address }}</div>
       <img
         v-if="mapPreviewUrl"
@@ -203,7 +225,7 @@ function closeConditionsModal() {
         class="w-56 h-56 mx-auto rounded-xl p-3"
       />
       <div class="text-center text-[#5f646e] text-sm mt-3">
-        Покажите персоналу
+        {{ $t("show_to_staff") }}
       </div>
     </div>
 
@@ -223,13 +245,13 @@ function closeConditionsModal() {
           >
             ×
           </button>
-          <div class="text-lg font-semibold mb-1">Что делать с этим кодом?</div>
-          <div class="text-[#8b8f98] text-sm mb-3">Инструкция</div>
+          <div class="text-lg font-semibold mb-1">
+            {{ $t("what_to_do_with_code") }}
+          </div>
+          <div class="text-[#8b8f98] text-sm mb-3">{{ $t("instruction") }}</div>
         </div>
         <div class="text-[#5e6068] text-sm leading-relaxed">
-          {{
-            certificate.what_to_do_with_code?.text || "Информация отсутствует"
-          }}
+          {{ certificate.what_to_do_with_code?.text || $t("no_information") }}
         </div>
       </div>
     </div>
@@ -250,13 +272,15 @@ function closeConditionsModal() {
           >
             ×
           </button>
-          <div class="text-lg font-semibold mb-1">Как получить скидку?</div>
-          <div class="text-[#8b8f98] text-sm mb-3">Инструкция</div>
+          <div class="text-lg font-semibold mb-1">
+            {{ $t("how_to_get_discount") }}
+          </div>
+          <div class="text-[#8b8f98] text-sm mb-3">{{ $t("instruction") }}</div>
         </div>
         <div
           class="text-[#5e6068] text-sm leading-relaxed"
           v-html="
-            certificate.how_to_get_a_discount?.text || 'Информация отсутствует'
+            certificate.how_to_get_a_discount?.text || $t('no_information')
           "
         ></div>
       </div>
@@ -278,14 +302,61 @@ function closeConditionsModal() {
           >
             ×
           </button>
-          <div class="text-lg font-semibold mb-1">Условия</div>
-          <div class="text-[#8b8f98] text-sm mb-3">Инструкция</div>
+          <div class="text-lg font-semibold mb-1">{{ $t("terms") }}</div>
+          <div class="text-[#8b8f98] text-sm mb-3">{{ $t("instruction") }}</div>
         </div>
         <div
           class="text-[#5e6068] text-sm leading-relaxed"
-          v-html="certificate.conditions?.text || 'Информация отсутствует'"
+          v-html="certificate.conditions?.text || $t('no_information')"
         ></div>
       </div>
     </div>
+
+    <!-- Позвонить в заведение -->
+    <tm-modal
+      v-if="isCallModalOpen"
+      width="580"
+      :closeBtn="false"
+      titleClass="text-center"
+      classWrap="modal-wrap"
+      class="call-merchant-modal"
+      :title="$t('call_establishment')"
+      @closeModal="closeCallModal"
+    >
+      <template #modal_content>
+        <div class="mt-4 space-y-3">
+          <div class="flex justify-center mt-6 mb-6 768:mb-3 768:mt-3">
+            <button
+              type="button"
+              class="site-btn-grey"
+              :disabled="isCalling"
+              @click="confirmCall"
+            >
+              {{ phoneDisplay }}
+            </button>
+          </div>
+
+          <div class="flex justify-center mt-4">
+            <button
+              type="button"
+              class="text-[#666] text-center underline"
+              @click="closeCallModal"
+            >
+              {{ $t("cancel2") }}
+            </button>
+          </div>
+        </div>
+      </template>
+    </tm-modal>
   </div>
 </template>
+
+<style lang="scss">
+.call-merchant-modal {
+  .modal-wrap {
+    @media (max-width: 768px) {
+      max-width: 320px !important;
+    }
+  }
+}
+</style>

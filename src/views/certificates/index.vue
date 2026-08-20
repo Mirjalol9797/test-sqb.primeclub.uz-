@@ -277,7 +277,7 @@ onUnmounted(() => {
                 :disabled="isCertificateDetailLoading"
               >
                 <img src="/icons/show_certificate.svg" alt="" class="w-4" />
-                {{ $t("Показать сертификат") }}
+                {{ $t("show_certificate") }}
               </button>
 
               <!-- <a

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import RequiredBlock from "./RequiredBlock.vue";
 import OptionalBlock from "./OptionalBlock.vue";
 import AlreadyReceived from "./AlreadyReceived.vue";
@@ -8,6 +9,7 @@ import CertificateDetailInfo from "./certificateDetailInfo.vue";
 
 const emit = defineEmits(["close"]);
 const router = useRouter();
+const { t } = useI18n();
 const props = defineProps({
   selectedOfferId: {
     type: [Number, String],
@@ -53,9 +55,8 @@ const showAlreadyReceivedModal = ref(false);
 const showCertificateDetail = ref(false);
 const certificateDetailData = ref(null);
 const alreadyReceivedContent = ref({
-  title: "Сертификат уже получен",
-  description:
-    "Вы уже получали сертификат в этом заведении сегодня. Найти его можно в разделе Сертификаты",
+  title: t("certificate_already_received"),
+  description: t("certificate_already_received_desc"),
 });
 
 function lockPageScroll() {
@@ -82,14 +83,12 @@ function handleAlreadyReceived(flowResult) {
     flowResult?.response?.data?.message ||
     flowResult?.response?.error ||
     (retryAfter
-      ? `Попробуйте снова через ${retryAfter} секунд или откройте раздел Сертификаты.`
+      ? t("try_again_after_seconds", { seconds: retryAfter })
       : "");
 
   alreadyReceivedContent.value = {
-    title: apiMessage || "Сертификат уже получен",
-    description:
-      apiDescription ||
-      "Вы уже получали сертификат в этом заведении сегодня. Найти его можно в разделе Сертификаты",
+    title: apiMessage || t("certificate_already_received"),
+    description: apiDescription || t("certificate_already_received_desc"),
   };
   showAlreadyReceivedModal.value = true;
 }

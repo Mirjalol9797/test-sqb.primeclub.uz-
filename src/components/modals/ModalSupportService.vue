@@ -40,11 +40,7 @@ function closeModal() {
     <template #modal_content>
       <div class="mt-4 space-y-3">
         <div class="flex justify-center mt-6 mb-6 768:mb-3 768:mt-3">
-          <a
-            href="https://t.me/help_primeclub"
-            target="_blank"
-            class="site-btn-grey"
-          >
+          <a href="https://t.me/help_primeclub" class="site-btn-grey">
             {{ $t("contact_in_telegram") }}
           </a>
         </div>
