@@ -34,7 +34,7 @@ function selectBranch(branch) {
     :closeBtn="true"
     titleClass="text-center"
     @closeModal="closeModal"
-    class="create-certificate-modal"
+    class="create-certificate-modal modal-fullscreen"
     classWrap="modal-wrap"
   >
     <template #modal_content>
@@ -43,7 +43,7 @@ function selectBranch(branch) {
           v-for="branch in props.branches"
           :key="branch.id"
           @click="selectBranch(branch)"
-          class="py-3 hover:bg-gray-100 cursor-pointer border-b border-[#ffffff1f] last:border-b-0"
+          class="py-3 px-2 cursor-pointer border-b border-[#ffffff1f] last:border-b-0 transition-colors hover:bg-[#ffffff0d]"
         >
           <div class="text-sm font-semibold">{{ branch.name }}</div>
           <div class="text-xs">{{ branch.address }}</div>
@@ -55,13 +55,3 @@ function selectBranch(branch) {
     </template>
   </tm-modal>
 </template>
-<style lang="scss">
-@media (max-width: 768px) {
-  .create-certificate-modal {
-    z-index: 20;
-    .modal-wrap {
-      max-width: 100% !important;
-    }
-  }
-}
-</style>

@@ -13,7 +13,7 @@
         </div>
         <button
           @click="closeModal"
-          class="absolute top-3 right-3"
+          class="modal-close-btn absolute top-3 right-3"
           v-if="closeBtn"
         >
           <img src="/icons/modal-close.svg" alt="" class="w-8 h-8" />

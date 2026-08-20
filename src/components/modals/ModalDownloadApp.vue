@@ -15,7 +15,7 @@ function closeModal() {
     :closeBtn="true"
     titleClass="text-center"
     @closeModal="closeModal"
-    class="download-app-modal"
+    class="download-app-modal modal-fullscreen"
     classWrap="modal-wrap"
   >
     <template #modal_content>
@@ -23,15 +23,3 @@ function closeModal() {
     </template>
   </tm-modal>
 </template>
-
-<style lang="scss">
-@media (max-width: 768px) {
-  .download-app-modal {
-    z-index: 20;
-    .modal-wrap {
-      max-width: 100% !important;
-    }
-  }
-}
-</style>
-

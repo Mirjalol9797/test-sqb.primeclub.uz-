@@ -24,7 +24,7 @@ const props = defineProps({
     :closeBtn="true"
     titleClass="text-center"
     @closeModal="closeModal"
-    class="create-certificate-modal"
+    class="create-certificate-modal modal-fullscreen"
     classWrap="modal-wrap"
   >
     <template #modal_content>

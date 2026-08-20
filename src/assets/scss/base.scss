@@ -20,6 +20,10 @@ body {
 :root {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  // Место под круглые кнопки «назад»/«закрыть», которые хост-приложение
+  // рисует поверх верха WebView. Значение ставит utils/safeArea.js: на iOS
+  // кнопки есть, на Android их нет и переменная остаётся нулевой.
+  --host-controls-top: 0px;
 }
 
 body {
@@ -54,6 +58,27 @@ body {
 .modal-safe-area {
   padding-top: var(--safe-top);
   padding-bottom: var(--safe-bottom);
+}
+
+// Полноэкранная модалка: карточка занимает весь экран и прижата к верху.
+// Верхний отступ складывается из статус-бара (он на .modal-safe-area у
+// корня оверлея) и места под плавающие кнопки хост-приложения — без этого
+// заголовок и «×» на iOS оказываются под ними.
+.modal-fullscreen {
+  align-items: start;
+
+  .modal-wrap {
+    max-width: 100% !important;
+    border-radius: 0;
+    height: 100%;
+    padding-top: calc(var(--host-controls-top) + 32px);
+  }
+
+  // Кнопка закрытия позиционируется от карточки, а не от контента, поэтому
+  // её приходится опускать отдельно.
+  .modal-close-btn {
+    top: calc(var(--host-controls-top) + 12px);
+  }
 }
 
 .pb-safe {

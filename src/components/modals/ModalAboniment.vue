@@ -85,7 +85,7 @@ function downloadCertificateFile() {
     :closeBtn="true"
     titleClass="text-center"
     @closeModal="closeModal"
-    class="aboniment-modal"
+    class="aboniment-modal modal-fullscreen"
     classWrap="modal-wrap"
   >
     <template #modal_content>
@@ -190,14 +190,3 @@ function downloadCertificateFile() {
     </template>
   </tm-modal>
 </template>
-
-<style lang="scss">
-@media (max-width: 768px) {
-  .aboniment-modal {
-    z-index: 20;
-    .modal-wrap {
-      max-width: 100% !important;
-    }
-  }
-}
-</style>

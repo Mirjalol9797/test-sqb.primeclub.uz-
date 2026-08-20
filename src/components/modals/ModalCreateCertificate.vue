@@ -58,7 +58,7 @@ function getTelegramBookingLink(startParam) {
     :closeBtn="true"
     titleClass="text-center"
     @closeModal="closeModal"
-    class="create-certificate-modal"
+    class="create-certificate-modal modal-fullscreen"
     classWrap="modal-wrap"
   >
     <template #modal_content>
@@ -187,12 +187,3 @@ function getTelegramBookingLink(startParam) {
     </template>
   </tm-modal>
 </template>
-
-<style lang="scss">
-.create-certificate-modal {
-  z-index: 20;
-  .modal-wrap {
-    max-width: 100% !important;
-  }
-}
-</style>

@@ -51,6 +51,12 @@ const NOTCH_MIN_SIDE = 812;
 // WKWebView иногда отдаёт инсеты не с первого кадра.
 const RECHECK_DELAYS_MS = [100, 500, 1200];
 
+// Высота полосы, которую занимают круглые кнопки «назад» и «закрыть»
+// хост-приложения. Они плавают поверх WebView, поэтому контент под ними
+// не читается и не нажимается — полосу держим свободной. На Android таких
+// кнопок нет, там значение остаётся нулевым.
+const IOS_HOST_CONTROLS_HEIGHT = 48;
+
 function isIos() {
   const ua = navigator.userAgent || "";
   const isIpadOs =
@@ -94,6 +100,10 @@ function fallbackInset() {
 
 export function applySafeArea() {
   const root = document.documentElement;
+  root.style.setProperty(
+    "--host-controls-top",
+    isIos() ? `${IOS_HOST_CONTROLS_HEIGHT}px` : "0px"
+  );
   const envInset = measureEnvInset();
 
   if (envInset > 0) {

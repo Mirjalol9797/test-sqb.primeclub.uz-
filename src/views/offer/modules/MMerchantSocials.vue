@@ -9,6 +9,18 @@ async function onPhoneClick(phone, e) {
   await callPhone(phone);
 }
 
+// Внешние ссылки (Telegram, Instagram, сайт) открываем переходом верхнего
+// уровня, а не через target="_blank": в WebView новое окно по умолчанию не
+// создаётся (Android нужен onCreateWindow, iOS — createWebViewWith), переход
+// молча отбрасывается и кнопка выглядит мёртвой. Переход верхнего уровня натив
+// видит в shouldOverrideUrlLoading (Android) / decidePolicyFor (iOS) и может
+// отдать ссылку в приложение Telegram/Instagram или во внешний браузер.
+function onLinkClick(url, e) {
+  if (!url) return;
+  e.preventDefault();
+  window.location.href = url;
+}
+
 const props = defineProps({
   socials: {
     type: Object,
@@ -47,56 +59,47 @@ const props = defineProps({
         </a>
       </div>
       <!-- telegram -->
-      <div
+      <a
         v-if="socials?.socials?.telegram"
+        :href="socials?.socials?.telegram"
+        rel="noopener noreferrer"
         class="flex items-center justify-between bg-[#141416] px-3 py-2 rounded-xl"
+        @click="onLinkClick(socials?.socials?.telegram, $event)"
       >
-        <div class="flex items-center gap-2">
+        <span class="flex items-center gap-2">
           <img src="/icons/socials/tg2.svg" alt="" class="w-6" />
-          <div class="font-medium text-sm">Telegram</div>
-        </div>
-        <a
-          :href="socials?.socials?.telegram"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="/icons/socials/link.svg" alt="" />
-        </a>
-      </div>
+          <span class="font-medium text-sm">Telegram</span>
+        </span>
+        <img src="/icons/socials/link.svg" alt="" class="w-6" />
+      </a>
       <!-- instagram -->
-      <div
+      <a
         v-if="socials?.socials?.instagram"
+        :href="socials?.socials?.instagram"
+        rel="noopener noreferrer"
         class="flex items-center justify-between bg-[#141416] px-3 py-2 rounded-xl"
+        @click="onLinkClick(socials?.socials?.instagram, $event)"
       >
-        <div class="flex items-center gap-2">
+        <span class="flex items-center gap-2">
           <img src="/icons/socials/inst.svg" alt="" class="w-6" />
-          <div class="font-medium text-sm">Instagram</div>
-        </div>
-        <a
-          :href="socials?.socials?.instagram"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="/icons/socials/link.svg" alt="" class="w-6" />
-        </a>
-      </div>
+          <span class="font-medium text-sm">Instagram</span>
+        </span>
+        <img src="/icons/socials/link.svg" alt="" class="w-6" />
+      </a>
       <!-- website -->
-      <div
+      <a
         v-if="socials?.socials?.website"
+        :href="socials?.socials?.website"
+        rel="noopener noreferrer"
         class="flex items-center justify-between bg-[#141416] px-3 py-2 rounded-xl"
+        @click="onLinkClick(socials?.socials?.website, $event)"
       >
-        <div class="flex items-center gap-2">
+        <span class="flex items-center gap-2">
           <img src="/icons/socials/web.svg" alt="" class="w-6" />
-          <div class="font-medium text-sm">Website</div>
-        </div>
-        <a
-          :href="socials?.socials?.website"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="/icons/socials/link.svg" alt="" />
-        </a>
-      </div>
+          <span class="font-medium text-sm">Website</span>
+        </span>
+        <img src="/icons/socials/link.svg" alt="" class="w-6" />
+      </a>
     </div>
   </div>
 </template>
