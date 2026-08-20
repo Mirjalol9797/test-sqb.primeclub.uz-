@@ -37,14 +37,14 @@ body {
 // Визуальный отступ страницы от хедера. Статус-бар тут уже не учитываем —
 // иначе отступ удваивался бы поверх padding-top у body.
 .pt-safe {
-  padding-top: 16px;
+  padding-top: 8px;
 }
 
 // Для fixed/absolute-оверлеев (полноэкранные модалки, экран оферты):
 // они выпадают из потока body и его отступ не получают, поэтому статус-бар
 // компенсируем прямо здесь.
 .pt-safe-overlay {
-  padding-top: calc(var(--safe-top) + 16px);
+  padding-top: calc(var(--safe-top) + 8px);
 }
 
 .safe-area-top {

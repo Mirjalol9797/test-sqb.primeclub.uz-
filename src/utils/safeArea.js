@@ -124,8 +124,79 @@ export function applySafeArea() {
   root.dataset.safeTopSource = "none";
 }
 
+/**
+ * Диагностика отступов. Включается флагом `?safeDebug=1` в адресе — в обычном
+ * запуске ничего не рисует и ни на что не влияет.
+ *
+ * Нужна, чтобы отличить два случая, которые выглядят одинаково: (1) хост
+ * отдаёт большой env(safe-area-inset-top) — статус-бар плюс полоса под свои
+ * плавающие кнопки, и мы честно его отступаем; (2) env() нулевой, а WebView
+ * уже сдвинут хостом вниз, и вся полоса — не наша. Отличает их `screenY`:
+ * это смещение вьюпорта от верха экрана.
+ */
+function renderSafeAreaDebug() {
+  const id = "safe-area-debug";
+  let box = document.getElementById(id);
+  if (!box) {
+    box = document.createElement("div");
+    box.id = id;
+    box.style.cssText =
+      "position:fixed;left:4px;right:4px;top:0;z-index:2147483647;" +
+      "background:#0f0;color:#000;font:11px/1.35 monospace;padding:6px;" +
+      "border-radius:6px;white-space:pre-wrap;word-break:break-all;";
+    document.body.appendChild(box);
+  }
+
+  const vv = window.visualViewport;
+  const rows = [
+    ["env top / bottom", `${measureEnvInset()} / ${measureEnvBottomInset()}`],
+    ["--safe-top", getComputedStyle(document.documentElement).getPropertyValue("--safe-top").trim()],
+    ["source", document.documentElement.dataset.safeTopSource || "-"],
+    ["screenY / screenX", `${window.screenY} / ${window.screenX}`],
+    ["screen", `${window.screen?.width}x${window.screen?.height}`],
+    ["inner", `${window.innerWidth}x${window.innerHeight}`],
+    ["outer", `${window.outerWidth}x${window.outerHeight}`],
+    ["visualViewport", vv ? `${Math.round(vv.width)}x${Math.round(vv.height)} @${Math.round(vv.offsetTop)}` : "-"],
+    ["dpr", String(window.devicePixelRatio)],
+    ["body top", String(Math.round(document.body.getBoundingClientRect().top))],
+    ["body padTop", getComputedStyle(document.body).paddingTop],
+    ["fullscreen?", String(isFullScreenWebView())],
+    ["ios?", String(isIos())],
+    ["ua", navigator.userAgent],
+  ];
+
+  box.textContent = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
+}
+
+function measureEnvBottomInset() {
+  const probe = document.createElement("div");
+  probe.style.cssText =
+    "position:fixed;top:0;left:0;width:0;visibility:hidden;pointer-events:none;height:env(safe-area-inset-bottom,0px);";
+  document.documentElement.appendChild(probe);
+  const value = probe.getBoundingClientRect().height || 0;
+  probe.remove();
+  return value;
+}
+
+function isSafeAreaDebugEnabled() {
+  try {
+    return new URLSearchParams(window.location.search).has("safeDebug");
+  } catch (e) {
+    return false;
+  }
+}
+
 export function initSafeArea() {
   applySafeArea();
+
+  if (isSafeAreaDebugEnabled()) {
+    const draw = () => renderSafeAreaDebug();
+    if (document.body) draw();
+    window.addEventListener("DOMContentLoaded", draw);
+    window.addEventListener("load", draw);
+    window.addEventListener("resize", draw);
+    RECHECK_DELAYS_MS.forEach((delay) => setTimeout(draw, delay + 50));
+  }
 
   // Инсеты могут появиться позже первого кадра.
   RECHECK_DELAYS_MS.forEach((delay) => setTimeout(applySafeArea, delay));
