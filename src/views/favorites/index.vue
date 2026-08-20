@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import { useFavoritesStore } from "@/stores/favorites";
 import { localePath } from "@/plugins/i18n";
+import FavoriteButton from "@/components/ui/FavoriteButton.vue";
 
 const favoritesStore = useFavoritesStore();
 
@@ -24,19 +25,20 @@ onMounted(async () => {
             :to="localePath(`/offer/${item.category.slug}/${item.slug}`)"
             class="transition-all duration-300 rounded-lg p-2 relative border border-[#ffffff1f] hover:border-[#f5f7fb]"
           >
-            <div class="w-16 mb-4 rounded-lg">
+            <div class="mb-4 rounded-lg">
               <img
                 :src="`https://main.primeclub.uz/uploads/${item.logo}`"
                 :alt="item.name"
                 class="w-full h-full object-cover rounded-lg"
               />
             </div>
-            <div class="font-semibold mb-1 flex items-center gap-1.5">
+            <div class="text-sm font-semibold mb-1 flex items-center gap-1.5">
               {{ item.name }}
             </div>
-            <div class="text-sm text-gray-500">
+            <div class="text-xs text-gray-500">
               {{ item.excerpt }}
             </div>
+            <FavoriteButton :merchant="item" class="absolute top-2 right-2" />
           </router-link>
         </div>
       </div>

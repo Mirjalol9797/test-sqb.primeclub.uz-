@@ -1,10 +1,9 @@
 <script setup>
 import { computed, defineProps, ref } from "vue";
 import TmButton from "@/components/ui/TmButton.vue";
-import { useFavoritesStore } from "@/stores/favorites.js";
 import { useSettingsStore } from "@/stores/settings";
+import FavoriteButton from "@/components/ui/FavoriteButton.vue";
 
-const favoritesStore = useFavoritesStore();
 const settingsStore = useSettingsStore();
 const isDetailsVisible = ref(false);
 
@@ -48,15 +47,6 @@ const warningOffer = computed(() => {
   );
 });
 
-const handleToggleFavorite = () => {
-  if (props.merchant?.is_favorite) {
-    favoritesStore.deleteFavorite(props.merchant.id);
-  } else {
-    favoritesStore.addFavorite(props.merchant.id);
-  }
-  // Обновляем состояние локально для мгновенной обратной связи
-  props.merchant.is_favorite = !props.merchant.is_favorite;
-};
 </script>
 
 <template>
@@ -111,15 +101,6 @@ const handleToggleFavorite = () => {
       {{ $t("get_certificate") }}
     </button> -->
 
-    <!-- <button
-      class="absolute top-4 right-4"
-      @click="handleToggleFavorite"
-      v-if="merchant?.is_favorite"
-    >
-      <img src="/icons/p-offer/favorite-like.svg" alt="" class="w-5" />
-    </button>
-    <button class="absolute top-4 right-4" @click="handleToggleFavorite" v-else>
-      <img src="/icons/p-offer/favorite.svg" alt="" class="w-5" />
-    </button> -->
+    <FavoriteButton :merchant="merchant" class="absolute top-3 right-3" />
   </div>
 </template>

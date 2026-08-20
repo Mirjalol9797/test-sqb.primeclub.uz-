@@ -314,5 +314,8 @@
   "login_auth_first_name_placeholder": "Введите имя",
   "login_auth_last_name_placeholder": "Введите фамилию",
   "call_not_supported": "Не удалось открыть набор номера. Номер скопирован: {phone}",
-  "call_not_supported_plain": "Не удалось открыть набор номера. Номер: {phone}"
+  "call_not_supported_plain": "Не удалось открыть набор номера. Номер: {phone}",
+  "add_to_favorites": "Добавить в избранное",
+  "remove_from_favorites": "Убрать из избранного",
+  "favorite_failed": "Не удалось изменить избранное, попробуйте ещё раз"
 }

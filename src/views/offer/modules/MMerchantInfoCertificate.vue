@@ -12,12 +12,11 @@ import { useLoginStore } from "@/stores/login";
 import { useSettingsStore } from "@/stores/settings";
 import { ensureAuthedForCertificate } from "@/utils/tools.js";
 import TmButton from "@/components/ui/TmButton.vue";
-import { useFavoritesStore } from "@/stores/favorites.js";
+import FavoriteButton from "@/components/ui/FavoriteButton.vue";
 import ModalAboniment from "@/components/modals/ModalAboniment.vue";
 
 const loginStore = useLoginStore();
 const settingsStore = useSettingsStore();
-const favoritesStore = useFavoritesStore();
 const route = useRoute();
 const bottomButton = ref(null);
 const showCodes = ref({});
@@ -66,15 +65,6 @@ const emit = defineEmits([
   "openMerchantBranches",
 ]);
 
-const handleToggleFavorite = () => {
-  if (props.merchant?.is_favorite) {
-    favoritesStore.deleteFavorite(props.merchant.id);
-  } else {
-    favoritesStore.addFavorite(props.merchant.id);
-  }
-  // Обновляем состояние локально для мгновенной обратной связи
-  props.merchant.is_favorite = !props.merchant.is_favorite;
-};
 
 function showCode(item) {
   if (!ensureAuthedForCertificate()) return;
@@ -179,16 +169,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- <button
-      class="absolute top-4 right-4"
-      @click="handleToggleFavorite"
-      v-if="merchant?.is_favorite"
-    >
-      <img src="/icons/p-offer/favorite-like.svg" alt="" class="w-5" />
-    </button>
-    <button class="absolute top-4 right-4" @click="handleToggleFavorite" v-else>
-      <img src="/icons/p-offer/favorite.svg" alt="" class="w-5" />
-    </button> -->
+    <FavoriteButton :merchant="merchant" class="absolute top-3 right-3" />
   </div>
 
   <ModalAboniment v-if="settingsStore.isAboniment" />

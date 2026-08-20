@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import { useMerchantsStore } from "@/stores/merchants";
+import FavoriteButton from "@/components/ui/FavoriteButton.vue";
 
 defineProps({
   merchants: {
@@ -60,12 +61,13 @@ watch(
         :to="getMerchantUrl(item)"
         class="transition-all duration-300 rounded-2xl relative"
       >
-        <div class="w-full h-[160px]">
+        <div class="w-full h-[160px] relative">
           <img
             :src="`https://main.primeclub.uz/uploads/${item.image}`"
             :alt="item.name"
             class="w-full h-full object-cover rounded-2xl"
           />
+          <FavoriteButton :merchant="item" class="absolute top-3 right-3" />
         </div>
         <div class="p-3 flex justify-between items-center rounded-b-2xl">
           <div>

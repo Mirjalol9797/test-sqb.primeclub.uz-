@@ -315,5 +315,8 @@
   "login_auth_first_name_placeholder": "Ismingizni kiriting",
   "login_auth_last_name_placeholder": "Familiyangizni kiriting",
   "call_not_supported": "Raqam terish oynasi ochilmadi. Raqam nusxalandi: {phone}",
-  "call_not_supported_plain": "Raqam terish oynasi ochilmadi. Raqam: {phone}"
+  "call_not_supported_plain": "Raqam terish oynasi ochilmadi. Raqam: {phone}",
+  "add_to_favorites": "Sevimlilarga qo‘shish",
+  "remove_from_favorites": "Sevimlilardan olib tashlash",
+  "favorite_failed": "Sevimlilarni o‘zgartirib bo‘lmadi, yana urinib ko‘ring"
 }
