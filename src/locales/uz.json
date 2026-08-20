@@ -318,5 +318,6 @@
   "call_not_supported_plain": "Raqam terish oynasi ochilmadi. Raqam: {phone}",
   "add_to_favorites": "Sevimlilarga qo‘shish",
   "remove_from_favorites": "Sevimlilardan olib tashlash",
-  "favorite_failed": "Sevimlilarni o‘zgartirib bo‘lmadi, yana urinib ko‘ring"
+  "favorite_failed": "Sevimlilarni o‘zgartirib bo‘lmadi, yana urinib ko‘ring",
+  "go_to_certificates": "Sertifikatlarga o‘tish"
 }
