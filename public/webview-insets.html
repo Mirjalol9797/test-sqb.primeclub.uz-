@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Замер отступов WebView</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+    </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --bg: #eef1f0;
+    --surface: #ffffff;
+    --surface-2: #e4e9e7;
+    --ink: #12181a;
+    --muted: #5c6b6b;
+    --line: #cdd6d4;
+    --accent: #0c6f6e;
+    --accent-soft: #d3e8e6;
+    --warn: #9c5511;
+    --warn-soft: #f2e2cd;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c1112;
+      --surface: #141b1c;
+      --surface-2: #1c2526;
+      --ink: #e7eeec;
+      --muted: #8fa09f;
+      --line: #26312f;
+      --accent: #45cfc6;
+      --accent-soft: #16302f;
+      --warn: #e2a44a;
+      --warn-soft: #2d2618;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0c1112;
+    --surface: #141b1c;
+    --surface-2: #1c2526;
+    --ink: #e7eeec;
+    --muted: #8fa09f;
+    --line: #26312f;
+    --accent: #45cfc6;
+    --accent-soft: #16302f;
+    --warn: #e2a44a;
+    --warn-soft: #2d2618;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .page {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(22px, 6vw, 30px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .lede {
+    color: var(--muted);
+    margin-top: 10px;
+    max-width: 58ch;
+  }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .verdict {
+    background: var(--accent-soft);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 16px;
+  }
+
+  .verdict .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .verdict p {
+    margin-top: 8px;
+    font-size: 16px;
+  }
+
+  .verdict code {
+    font-family: var(--mono);
+    font-size: 0.92em;
+  }
+
+  .ruler {
+    display: flex;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .ruler-bar {
+    width: 76px;
+    flex: none;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--surface);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .seg-host {
+    background: var(--warn-soft);
+    color: var(--warn);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .seg-inset {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .seg-content {
+    background: var(--surface-2);
+    flex: 1 1 auto;
+  }
+
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  .legend-row {
+    display: flex;
+    gap: 9px;
+    align-items: baseline;
+  }
+
+  .swatch {
+    width: 11px;
+    height: 11px;
+    flex: none;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    transform: translateY(1px);
+  }
+
+  .swatch-host { background: var(--warn-soft); }
+  .swatch-inset { background: var(--accent-soft); }
+  .swatch-content { background: var(--surface-2); }
+
+  .legend-row b {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .legend-row span {
+    color: var(--muted);
+  }
+
+  dl {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row:last-child { border-bottom: 0; }
+
+  dt {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  dd {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    word-break: break-all;
+  }
+
+  .row-key dd { color: var(--accent); }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  button {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--bg);
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 3px;
+    padding: 10px 16px;
+    cursor: pointer;
+    min-height: 44px;
+  }
+
+  button.ghost {
+    color: var(--ink);
+    background: transparent;
+    border-color: var(--line);
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .copied {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px;
+    overflow-x: auto;
+    white-space: pre;
+    -webkit-user-select: all;
+    user-select: all;
+  }
+
+  .note {
+    font-size: 13px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .note b { color: var(--ink); font-weight: 600; }
+</style>
+
+  </head>
+  <body>
+    <p style="padding: 12px 16px 0; font: 500 13px/1.4 monospace">
+      <a href="#" onclick="history.back(); return false" style="color: inherit"
+        >&larr; назад</a
+      >
+    </p>
+<div class="page">
+  <header>
+    <div class="eyebrow">PrimeClub · SQB WebView</div>
+    <h1>Замер отступов WebView</h1>
+    <p class="lede">
+      Страница показывает, сколько места сверху резервирует система и приложение,
+      которое её открыло. Цифры относятся к тому окружению, где открыта эта
+      страница: чтобы понять поведение приложения SQB, открой ссылку внутри него.
+    </p>
+  </header>
+
+  <section>
+    <h2>Вывод</h2>
+    <div class="verdict">
+      <div class="tag" id="verdict-tag">измеряю…</div>
+      <p id="verdict-text">Подожди пару секунд.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Что занимает верх экрана</h2>
+    <div class="ruler">
+      <div class="ruler-bar" id="bar">
+        <div class="seg seg-host" id="seg-host"></div>
+        <div class="seg seg-inset" id="seg-inset"></div>
+        <div class="seg seg-content">страница</div>
+      </div>
+      <div class="legend">
+        <div class="legend-row">
+          <span class="swatch swatch-host"></span>
+          <span><b id="lg-host">0px</b> — сдвиг вьюпорта (<code>screenY</code>): полоса вне страницы, её занимает приложение</span>
+        </div>
+        <div class="legend-row">
+          <span class="swatch swatch-inset"></span>
+          <span><b id="lg-inset">0px</b> — <code>env(safe-area-inset-top)</code>: полоса внутри страницы, её отступает наш CSS</span>
+        </div>
+        <div class="legend-row">
+          <span class="swatch swatch-content"></span>
+          <span><b id="lg-content">0px</b> — остальное: доступная высота страницы</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Показатели</h2>
+    <dl id="table"></dl>
+  </section>
+
+  <section>
+    <h2>Отправить результат</h2>
+    <div class="actions">
+      <button type="button" id="copy">Скопировать всё</button>
+      <button type="button" class="ghost" id="refresh">Замерить снова</button>
+      <span class="copied" id="copied" hidden>скопировано</span>
+    </div>
+    <pre id="raw"></pre>
+  </section>
+
+  <div class="note">
+    <span><b>Как читать.</b> Если ненулевой только <code>env top</code> — полосу резервирует система, и её видно внутри страницы: наш CSS может ей распорядиться.</span>
+    <span>Если ненулевой <code>screenY</code> или разница <code>screen.height − innerHeight</code> — вьюпорт начинается ниже верха экрана: эту полосу рисует приложение-хост, из вёрстки её не убрать.</span>
+    <span>Если оба нуля — сверху ничего не зарезервировано, и весь отступ даёт только наш CSS.</span>
+  </div>
+</div>
+
+<script>
+  var ROWS = [
+    ["env top", "envTop", true],
+    ["env bottom", "envBottom", false],
+    ["env left / right", "envSides", false],
+    ["screenY / screenX", "screenPos", true],
+    ["screen", "screen", false],
+    ["screen.availHeight", "avail", false],
+    ["inner", "inner", true],
+    ["outer", "outer", false],
+    ["screen.height − innerHeight", "diff", true],
+    ["visualViewport", "vv", false],
+    ["documentElement.clientHeight", "clientH", false],
+    ["devicePixelRatio", "dpr", false],
+    ["orientation", "orient", false],
+    ["standalone", "standalone", false],
+    ["userAgent", "ua", false]
+  ];
+
+  function probe(prop) {
+    var el = document.createElement("div");
+    el.style.cssText =
+      "position:fixed;top:0;left:0;width:0;visibility:hidden;pointer-events:none;height:env(" +
+      prop + ",0px);";
+    document.documentElement.appendChild(el);
+    var value = el.getBoundingClientRect().height || 0;
+    el.remove();
+    return Math.round(value);
+  }
+
+  function collect() {
+    var vv = window.visualViewport;
+    var screenH = (window.screen && window.screen.height) || 0;
+    var envTop = probe("safe-area-inset-top");
+    var screenY = Math.round(window.screenY || 0);
+
+    return {
+      envTop: envTop,
+      envBottom: probe("safe-area-inset-bottom"),
+      envSides: probe("safe-area-inset-left") + " / " + probe("safe-area-inset-right"),
+      screenY: screenY,
+      screenPos: screenY + " / " + Math.round(window.screenX || 0),
+      screen: ((window.screen && window.screen.width) || 0) + "x" + screenH,
+      avail: String((window.screen && window.screen.availHeight) || 0),
+      inner: window.innerWidth + "x" + window.innerHeight,
+      outer: window.outerWidth + "x" + window.outerHeight,
+      diff: String(screenH - window.innerHeight),
+      vv: vv
+        ? Math.round(vv.width) + "x" + Math.round(vv.height) +
+          " @" + Math.round(vv.offsetTop) + " ×" + (Math.round(vv.scale * 100) / 100)
+        : "нет",
+      clientH: String(document.documentElement.clientHeight),
+      dpr: String(window.devicePixelRatio),
+      orient: window.innerWidth > window.innerHeight ? "landscape" : "portrait",
+      standalone: "standalone" in navigator ? String(navigator.standalone) : "—",
+      ua: navigator.userAgent,
+      screenH: screenH
+    };
+  }
+
+  function verdict(d) {
+    var shifted = d.screenY > 8 || d.screenH - window.innerHeight > 40;
+
+    if (d.envTop > 0 && shifted) {
+      return [
+        "инсет и сдвиг",
+        "Система отдаёт <code>env(safe-area-inset-top) = " + d.envTop +
+          "px</code>, и вьюпорт при этом сдвинут вниз на " + d.screenY +
+          "px. Верхнюю полосу делят приложение и страница — резервировать её целиком в CSS значит отступать дважды."
+      ];
+    }
+    if (d.envTop > 0) {
+      return [
+        "полоса внутри страницы",
+        "Система отдаёт <code>env(safe-area-inset-top) = " + d.envTop +
+          "px</code>, вьюпорт занимает экран целиком. Эту полосу отступает наш CSS, значит её можно уменьшить и разместить в ней заголовок."
+      ];
+    }
+    if (shifted) {
+      return [
+        "полоса у приложения",
+        "<code>env(safe-area-inset-top) = 0</code>, но вьюпорт начинается на " +
+          Math.max(d.screenY, d.screenH - window.innerHeight) +
+          "px ниже верха экрана. Полосу рисует приложение-хост — из вёрстки её не убрать, нужна правка в нативе."
+      ];
+    }
+    return [
+      "ничего не зарезервировано",
+      "И <code>env(safe-area-inset-top)</code>, и сдвиг вьюпорта нулевые: страница занимает экран с самого верха. Весь отступ сверху даёт только наш CSS."
+    ];
+  }
+
+  function render() {
+    var d = collect();
+
+    var table = document.getElementById("table");
+    table.textContent = "";
+    ROWS.forEach(function (row) {
+      var wrap = document.createElement("div");
+      wrap.className = "row" + (row[2] ? " row-key" : "");
+      var dt = document.createElement("dt");
+      dt.textContent = row[0];
+      var dd = document.createElement("dd");
+      dd.textContent = d[row[1]];
+      wrap.appendChild(dt);
+      wrap.appendChild(dd);
+      table.appendChild(wrap);
+    });
+
+    var v = verdict(d);
+    document.getElementById("verdict-tag").textContent = v[0];
+    document.getElementById("verdict-text").innerHTML = v[1];
+
+    var barH = 260;
+    var total = Math.max(d.screenH, window.innerHeight, 1);
+    var hostPx = Math.max(d.screenY, d.screenH - window.innerHeight, 0);
+    var hostSeg = document.getElementById("seg-host");
+    var insetSeg = document.getElementById("seg-inset");
+    hostSeg.style.height = Math.round((hostPx / total) * barH) + "px";
+    hostSeg.textContent = hostPx ? hostPx : "";
+    insetSeg.style.height = Math.round((d.envTop / total) * barH) + "px";
+    insetSeg.textContent = d.envTop ? d.envTop : "";
+    document.getElementById("bar").style.height = barH + "px";
+
+    document.getElementById("lg-host").textContent = hostPx + "px";
+    document.getElementById("lg-inset").textContent = d.envTop + "px";
+    document.getElementById("lg-content").textContent =
+      Math.max(total - hostPx - d.envTop, 0) + "px";
+
+    var lines = ROWS.map(function (row) {
+      return row[0] + ": " + d[row[1]];
+    });
+    lines.unshift("— замер отступов WebView —");
+    document.getElementById("raw").textContent = lines.join("\n");
+  }
+
+  document.getElementById("copy").addEventListener("click", function () {
+    var text = document.getElementById("raw").textContent;
+    var done = function () {
+      var flag = document.getElementById("copied");
+      flag.hidden = false;
+      setTimeout(function () { flag.hidden = true; }, 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else {
+      fallback();
+    }
+    function fallback() {
+      var area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.cssText = "position:fixed;left:-9999px;opacity:0;";
+      document.body.appendChild(area);
+      area.select();
+      try { document.execCommand("copy"); done(); } catch (e) {}
+      area.remove();
+    }
+  });
+
+  document.getElementById("refresh").addEventListener("click", render);
+
+  render();
+  [120, 400, 900, 1600].forEach(function (delay) { setTimeout(render, delay); });
+  window.addEventListener("load", render);
+  window.addEventListener("resize", render);
+  window.addEventListener("orientationchange", function () { setTimeout(render, 250); });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", render);
+  }
+</script>
+  </body>
+</html>

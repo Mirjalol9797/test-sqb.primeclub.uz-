@@ -238,6 +238,44 @@ function logOut() {
               </svg>
             </div>
           </a>
+          <!-- ВРЕМЕННО: диагностика верхних отступов в WebView.
+               Открывает /webview-insets.html — статическую страницу из public/.
+               Удалить вместе с public/webview-insets.html, когда отступы
+               будут настроены. -->
+          <a
+            href="/webview-insets.html"
+            class="flex items-center justify-between gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
+          >
+            <div class="flex items-center gap-3">
+              <svg
+                class="w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 5h16M4 12h10M4 19h16"
+                ></path>
+              </svg>
+              <span>Замер отступов (временно)</span>
+            </div>
+            <div class="block">
+              <svg
+                class="w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </div>
+          </a>
         </div>
       </div>
     </div>
