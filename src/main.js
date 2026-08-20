@@ -251,6 +251,19 @@ app.use(i18n);
 app.use(VueAwesomePaginate);
 app.use(VueApexCharts);
 
+// ВРЕМЕННО, только для локальной разработки: подставляем токен из .env,
+// чтобы не проходить SSO при каждом запуске.
+// Чтобы отключить — удалите VITE_DEV_TOKEN из .env, код менять не нужно.
+// В прод-сборке блок не выполняется: import.meta.env.DEV там false.
+if (import.meta.env.DEV && import.meta.env.VITE_DEV_TOKEN) {
+  const loginStore = useLoginStore();
+  loginStore.token = import.meta.env.VITE_DEV_TOKEN;
+  loginStore.isDemo = false; // иначе сертификаты и коды заблокированы
+  loginStore.getUserProfile().catch((error) => {
+    console.warn("VITE_DEV_TOKEN недействителен:", error?.response?.status);
+  });
+}
+
 // // Store dan user ma'lumotini olish
 
 // console.log("User ma'lumotlari:", loginStore.user);

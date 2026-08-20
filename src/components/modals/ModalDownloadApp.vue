@@ -28,11 +28,8 @@ function closeModal() {
 @media (max-width: 768px) {
   .download-app-modal {
     z-index: 20;
-    align-items: start;
     .modal-wrap {
       max-width: 100% !important;
-      border-radius: 0;
-      height: 100%;
     }
   }
 }

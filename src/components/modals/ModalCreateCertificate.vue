@@ -191,11 +191,8 @@ function getTelegramBookingLink(startParam) {
 <style lang="scss">
 .create-certificate-modal {
   z-index: 20;
-  align-items: start;
   .modal-wrap {
     max-width: 100% !important;
-    border-radius: 0;
-    height: 100%;
   }
 }
 </style>

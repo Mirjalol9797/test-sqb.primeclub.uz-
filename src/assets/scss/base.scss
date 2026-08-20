@@ -47,6 +47,15 @@ body {
   padding-top: var(--safe-top);
 }
 
+// Модалки рисуются через position: fixed и выпадают из потока body, поэтому
+// его padding-top до них не доходит. Без этих отступов содержимое уезжает под
+// статус-бар и нативную панель хост-приложения (на iOS она полупрозрачная и
+// накрывает верх WebView; на Android инсеты нулевые, поэтому там всё ровно).
+.modal-safe-area {
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
 .pb-safe {
   padding-bottom: var(--safe-bottom);
 }

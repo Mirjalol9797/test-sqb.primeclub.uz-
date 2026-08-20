@@ -1,14 +1,8 @@
 <script setup>
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { useCertificatesStore } from "@/stores/certificates";
 import { downloadPdfFile } from "@/utils/downloadPdf";
-import {
-  CALL_FAILED,
-  callPhone,
-  copyPhone,
-  normalizePhone,
-  telHref,
-} from "@/utils/phoneCall";
+import { callPhone, normalizePhone, telHref } from "@/utils/phoneCall";
 import MainTitle from "@/components/MainTitle.vue";
 
 const props = defineProps({
@@ -52,55 +46,21 @@ const phoneNumber = computed(() => normalizePhone(phone.value));
 const phoneLink = computed(() => telHref(phone.value));
 
 const isCalling = ref(false);
-const isCallFallbackOpen = ref(false);
-const isPhoneCopied = ref(false);
 
-// Набор номера открывает host-приложение, а не мы. Поэтому: пробуем позвонить,
-// и если приложение не ушло в фон — показываем номер с копированием, чтобы
-// кнопка не оказалась «мёртвой».
+// Переход на tel: перехватываем всегда: в Android WebView необработанная схема
+// уводит страницу на ERR_UNKNOWN_URL_SCHEME и убивает SPA. Если host-приложение
+// набор номера не открыло — просто ничего не показываем.
 async function callMerchant(e) {
   e.preventDefault();
   if (!phoneNumber.value || isCalling.value) return;
 
   isCalling.value = true;
   try {
-    // Шторку открываем только на честной неудаче: CALL_BUSY означает, что
-    // попытка уже идёт, и второй раз показывать её не нужно.
-    if ((await callPhone(phoneNumber.value)) === CALL_FAILED) {
-      isPhoneCopied.value = false;
-      isCallFallbackOpen.value = true;
-    }
+    await callPhone(phoneNumber.value);
   } finally {
     isCalling.value = false;
   }
 }
-
-function closeCallFallback() {
-  isCallFallbackOpen.value = false;
-}
-
-async function copyMerchantPhone() {
-  isPhoneCopied.value = await copyPhone(phoneNumber.value);
-}
-
-// Если натив показывает системный запрос «Позвонить?», страница уходит в фон
-// не сразу и мы успеваем открыть запасной вариант. Как только звонок всё-таки
-// начался — убираем его, чтобы он не ждал пользователя по возвращении.
-function closeFallbackOnHide() {
-  if (document.hidden) closeCallFallback();
-}
-
-watch(isCallFallbackOpen, (isOpen) => {
-  if (isOpen) {
-    document.addEventListener("visibilitychange", closeFallbackOnHide);
-  } else {
-    document.removeEventListener("visibilitychange", closeFallbackOnHide);
-  }
-});
-
-onUnmounted(() => {
-  document.removeEventListener("visibilitychange", closeFallbackOnHide);
-});
 
 async function downloadPdf() {
   try {
@@ -325,46 +285,6 @@ function closeConditionsModal() {
           class="text-[#5e6068] text-sm leading-relaxed"
           v-html="certificate.conditions?.text || 'Информация отсутствует'"
         ></div>
-      </div>
-    </div>
-
-    <!-- Запасной вариант, если host-приложение не открыло набор номера -->
-    <div
-      v-if="isCallFallbackOpen"
-      class="fixed inset-0 z-[70] bg-black/40 flex items-end max-w-[640px] mx-auto"
-      @click.self="closeCallFallback"
-    >
-      <div class="w-full bg-white rounded-t-3xl px-5 pt-4 pb-6 text-[#1f1f27]">
-        <div class="w-14 h-1.5 bg-[#d6d6dc] rounded-full mx-auto mb-5"></div>
-        <div class="relative pr-12">
-          <button
-            type="button"
-            class="absolute right-0 top-0 w-10 h-10 rounded-full bg-[#f1f1f4] flex items-center justify-center text-2xl text-[#2d2d34]"
-            @click="closeCallFallback"
-          >
-            ×
-          </button>
-          <div class="text-lg font-semibold mb-1">Телефон заведения</div>
-          <div class="text-[#8b8f98] text-sm mb-3">
-            Не удалось открыть набор номера — позвоните вручную
-          </div>
-        </div>
-
-        <a
-          :href="phoneLink"
-          class="block text-2xl font-bold tracking-wide mb-4 break-all"
-          @click="callMerchant"
-        >
-          {{ phoneNumber }}
-        </a>
-
-        <button
-          type="button"
-          class="w-full h-12 rounded-2xl bg-[#141416] text-white text-base font-semibold"
-          @click="copyMerchantPhone"
-        >
-          {{ isPhoneCopied ? "Номер скопирован" : "Скопировать номер" }}
-        </button>
       </div>
     </div>
   </div>

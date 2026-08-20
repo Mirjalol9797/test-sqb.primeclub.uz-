@@ -1,22 +1,12 @@
 <script setup>
-import { toast } from "vue3-toastify";
-import { useI18n } from "vue-i18n";
-import { CALL_FAILED, callPhone, copyPhone, telHref } from "@/utils/phoneCall";
+import { callPhone, telHref } from "@/utils/phoneCall";
 
-const { t } = useI18n();
-
-// Набор номера открывает host-приложение. Если оно не поддерживает схему
-// tel:, копируем номер и показываем его — чтобы кнопка не была «мёртвой».
+// Переход на tel: перехватываем всегда: в Android WebView необработанная схема
+// уводит страницу на ERR_UNKNOWN_URL_SCHEME и убивает SPA. Если host-приложение
+// набор номера не открыло — просто ничего не показываем.
 async function onPhoneClick(phone, e) {
   e.preventDefault();
-  if ((await callPhone(phone)) !== CALL_FAILED) return;
-
-  const copied = await copyPhone(phone);
-  toast.info(
-    t(copied ? "call_not_supported" : "call_not_supported_plain", { phone }),
-    // toastId не даёт уведомлению задублироваться при повторных тапах
-    { autoClose: 5000, toastId: `call-fallback-${phone}` }
-  );
+  await callPhone(phone);
 }
 
 const props = defineProps({

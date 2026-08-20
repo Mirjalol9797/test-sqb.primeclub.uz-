@@ -23,13 +23,10 @@ function handleSlideChange(swiper) {
 </script>
 
 <template>
-  <div
-    v-if="merchant?.images?.length > 0"
-    class="mx-[-10px] relative block mb-4"
-  >
+  <div v-if="merchant?.images?.length > 0" class="relative block mb-4">
     <Swiper
       :slides-per-view="1"
-      :space-between="0"
+      :space-between="10"
       :loop="merchant?.images?.length > 1"
       class="h-[340px] mobile-image"
       @slideChange="handleSlideChange"

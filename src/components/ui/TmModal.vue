@@ -1,9 +1,9 @@
 <template>
   <div
-    class="fixed inset-0 flex items-center justify-center z-20 max-w-[640px] mx-auto"
+    class="fixed inset-0 flex items-center justify-center z-20 max-w-[640px] mx-auto modal-safe-area"
   >
     <div
-      class="bg-black pt-8 p-6 rounded-2xl w-full relative z-20"
+      class="bg-black pt-8 p-6 rounded-2xl w-full relative z-20 max-h-full overflow-y-auto"
       :style="{ maxWidth: `${width}px` }"
       :class="classWrap"
     >

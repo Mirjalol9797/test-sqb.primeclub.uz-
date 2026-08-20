@@ -32,14 +32,9 @@ function goBack() {
 </script>
 
 <template>
-  <div class="flex items-center gap-2 w-full min-h-[44px] py-2">
-    <div class="flex-1 min-w-0 text-lg font-semibold text-center truncate">
+  <div class="flex items-center justify-center gap-2 w-full min-h-[44px] py-2">
+    <div class="text-lg font-semibold text-center truncate">
       {{ pageTitle }}
-    </div>
-
-    <!-- Зеркальный отступ под кнопку, чтобы заголовок стоял ровно по центру -->
-    <div class="shrink-0 flex items-center justify-end min-w-[34px]">
-      <slot name="action" />
     </div>
   </div>
 </template>
