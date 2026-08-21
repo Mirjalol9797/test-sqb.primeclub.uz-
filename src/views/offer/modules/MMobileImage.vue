@@ -28,14 +28,14 @@ function handleSlideChange(swiper) {
       :slides-per-view="1"
       :space-between="10"
       :loop="merchant?.images?.length > 1"
-      class="h-[340px] mobile-image"
+      class="h-[340px] mobile-image rounded-2xl"
       @slideChange="handleSlideChange"
     >
       <SwiperSlide v-for="(image, index) in merchant?.images" :key="index">
         <img
           :src="`https://main.primeclub.uz/uploads/${image}`"
           alt=""
-          class="h-full w-full object-cover"
+          class="h-full w-full object-cover rounded-2xl"
         />
       </SwiperSlide>
     </Swiper>
