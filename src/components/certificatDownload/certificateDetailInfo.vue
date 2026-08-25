@@ -186,13 +186,13 @@ function closeConditionsModal() {
       >
         {{ $t("terms") }}
       </button>
-      <button
+      <!-- <button
         type="button"
         class="w-full site-btn-grey mb-3"
         @click="downloadPdf"
       >
         {{ $t("download_pdf") }}
-      </button>
+      </button> -->
       <button
         type="button"
         class="w-full site-btn-grey"
