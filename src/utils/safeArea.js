@@ -51,7 +51,7 @@ const NOTCH_MIN_SIDE = 812;
 // WKWebView иногда отдаёт инсеты не с первого кадра.
 const RECHECK_DELAYS_MS = [100, 500, 1200];
 
-// Высота полосы, которую занимают круглые кнопки «назад» и «закрыть»
+// Запасная высота полосы под круглые кнопки «назад» и «закрыть»
 // хост-приложения. Они плавают поверх WebView, поэтому контент под ними
 // не читается и не нажимается — полосу держим свободной. На Android таких
 // кнопок нет, там значение остаётся нулевым.
@@ -100,27 +100,43 @@ function fallbackInset() {
 
 export function applySafeArea() {
   const root = document.documentElement;
-  root.style.setProperty(
-    "--host-controls-top",
-    isIos() ? `${IOS_HOST_CONTROLS_HEIGHT}px` : "0px"
-  );
   const envInset = measureEnvInset();
+  // Сколько занимает статус-бар (или остров) по метрикам самого устройства.
+  const deviceInset = fallbackInset();
 
   if (envInset > 0) {
-    // env() работает — снимаем нашу подмену, если она была поставлена раньше.
-    root.style.removeProperty("--safe-top");
-    root.dataset.safeTopSource = "env";
+    // Хост-приложение SQB раздувает инсет через additionalSafeAreaInsets: на
+    // iPhone 393x852 env() отдаёт 113px вместо 59px, потому что резервирует
+    // ещё и полосу под свою круглую кнопку «назад». Отступать все 113 нельзя —
+    // экран начинается непозволительно низко. Поэтому под статус-бар держим
+    // ровно инсет устройства, а излишек кладём в отдельную переменную: он
+    // нужен только там, где наш контент попадает в левый верхний угол.
+    const inflated = isIos() && deviceInset > 0 && envInset > deviceInset;
+    root.style.setProperty(
+      "--safe-top",
+      `${inflated ? deviceInset : envInset}px`
+    );
+    root.style.setProperty(
+      "--host-controls-top",
+      `${inflated ? envInset - deviceInset : 0}px`
+    );
+    root.dataset.safeTopSource = inflated ? "capped" : "env";
     return;
   }
 
   if (isIos() && isFullScreenWebView()) {
-    root.style.setProperty("--safe-top", `${fallbackInset()}px`);
+    root.style.setProperty("--safe-top", `${deviceInset}px`);
+    root.style.setProperty(
+      "--host-controls-top",
+      `${IOS_HOST_CONTROLS_HEIGHT}px`
+    );
     root.dataset.safeTopSource = "fallback";
     return;
   }
 
   // Android и WebView, который натив уже сдвинул ниже статус-бара.
   root.style.setProperty("--safe-top", "0px");
+  root.style.setProperty("--host-controls-top", "0px");
   root.dataset.safeTopSource = "none";
 }
 

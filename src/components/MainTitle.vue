@@ -32,11 +32,21 @@ function goBack() {
 </script>
 
 <template>
-  <div class="flex items-center justify-center gap-2 w-full min-h-[44px] py-2">
+  <div
+    class="screen-title flex items-center justify-center gap-2 w-full min-h-[44px] py-2"
+  >
     <div class="text-lg font-semibold text-center truncate">
       {{ pageTitle }}
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.screen-title {
+  // Заголовок теперь стоит в той же полосе, где хост-приложение рисует свою
+  // круглую кнопку «назад» (она плавает слева поверх WebView). Симметричный
+  // отступ не даёт длинному названию уехать под неё и сохраняет центрирование.
+  // Вне WebView переменная нулевая, отступа нет.
+  padding-inline: var(--host-controls-top);
+}
+</style>
