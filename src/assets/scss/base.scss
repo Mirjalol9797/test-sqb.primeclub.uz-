@@ -37,14 +37,14 @@ body {
 // Визуальный отступ страницы от хедера. Статус-бар тут уже не учитываем —
 // иначе отступ удваивался бы поверх padding-top у body.
 .pt-safe {
-  padding-top: 8px;
+  padding-top: 16px;
 }
 
 // Для fixed/absolute-оверлеев (полноэкранные модалки, экран оферты):
 // они выпадают из потока body и его отступ не получают, поэтому статус-бар
 // компенсируем прямо здесь.
 .pt-safe-overlay {
-  padding-top: calc(var(--safe-top) + 8px);
+  padding-top: calc(var(--safe-top) + 16px);
 }
 
 // Экранам, у которых в левом верхнем углу свои элементы (стрелка «назад»,
@@ -52,7 +52,7 @@ body {
 // окажутся под ней. Центрированным заголовкам она не нужна: кнопка слева.
 // Ставится вместо .pt-safe, а не вместе с ним.
 .pt-host-controls {
-  padding-top: calc(var(--host-controls-top) + 8px);
+  padding-top: calc(var(--host-controls-top) + 16px);
 }
 
 .safe-area-top {
