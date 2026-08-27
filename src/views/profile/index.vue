@@ -238,10 +238,11 @@ function logOut() {
               </svg>
             </div>
           </a>
-          <!-- ВРЕМЕННО: диагностика верхних отступов в WebView.
+          <!-- ВРЕМЕННО, отключено: диагностика верхних отступов в WebView.
                Открывает /webview-insets.html — статическую страницу из public/.
-               Удалить вместе с public/webview-insets.html, когда отступы
-               будут настроены. -->
+               Чтобы включить снова, раскомментируй пункт ниже. Удалить вместе
+               с public/webview-insets.html, когда станет не нужен. -->
+          <!--
           <a
             href="/webview-insets.html"
             class="flex items-center justify-between gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
@@ -276,6 +277,7 @@ function logOut() {
               </svg>
             </div>
           </a>
+          -->
         </div>
       </div>
     </div>
