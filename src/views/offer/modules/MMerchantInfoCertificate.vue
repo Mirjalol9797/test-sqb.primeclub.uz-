@@ -72,7 +72,7 @@ function showCode(item) {
   showCodes.value[item.id] = true;
 }
 
-// Получение сертификата доступно только авторизованным (не гостю)
+// Получение сертификата доступно только авторизованным
 function requestCertificate(offerId) {
   if (!ensureAuthedForCertificate()) return;
   emit("createCertificate", offerId);

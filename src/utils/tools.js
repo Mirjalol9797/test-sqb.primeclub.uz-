@@ -14,11 +14,10 @@ export function getAccessToken() {
   return store.token;
 }
 
-// Получить сертификат/код может только полноценно авторизованный (SSO) пользователь.
-// Гость (демо-вход) — не может, несмотря на наличие токена.
+// Получить сертификат/код может только авторизованный по SSO пользователь.
 export function ensureAuthedForCertificate() {
   const store = useLoginStore();
-  if (store.token && !store.isDemo) return true;
+  if (store.token) return true;
   // autoClose переопределяем — глобально стоит 200мс, сообщение не успеть прочитать
   toast.info(i18n.global.t("auth_required_for_certificate"), {
     autoClose: 4000,

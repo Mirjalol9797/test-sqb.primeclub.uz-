@@ -3,12 +3,15 @@ import { onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import MobileFooter from "@/components/MobileFooter.vue";
+import ModalNoData from "@/components/modals/ModalNoData.vue";
 import { useLoginStore } from "@/stores/login";
+import { useSettingsStore } from "@/stores/settings";
 
 const route = useRoute();
 const router = useRouter();
 
 const loginStore = useLoginStore();
+const settingsStore = useSettingsStore();
 function siteScrollTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -61,6 +64,10 @@ onMounted(() => {
   <div class="site-scroll-top" @click="siteScrollTop">
     <img src="./assets/images/wwww.svg" alt="scroll-top" />
   </div>
+
+  <!-- Блокирующая заглушка: данные от сервера не получены (нет sso_token
+       или SSO-авторизация не прошла). Перекрывает весь экран. -->
+  <ModalNoData v-if="settingsStore.isNoData" />
 </template>
 
 <style scoped></style>

@@ -21,7 +21,8 @@ onMounted(() => {
   }
 
   if (!target.startsWith("/")) {
-    // Нет redirect — гостевая витрина
+    // Нет redirect — уводим на витрину; без токена там поднимется
+    // блокирующая модалка «Недостаточно данных»
     window.location.replace("/offer");
     return;
   }

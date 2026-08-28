@@ -262,7 +262,6 @@ app.use(VueApexCharts);
 if (import.meta.env.DEV && import.meta.env.VITE_DEV_TOKEN) {
   const loginStore = useLoginStore();
   loginStore.token = import.meta.env.VITE_DEV_TOKEN;
-  loginStore.isDemo = false; // иначе сертификаты и коды заблокированы
   loginStore.getUserProfile().catch((error) => {
     console.warn("VITE_DEV_TOKEN недействителен:", error?.response?.status);
   });

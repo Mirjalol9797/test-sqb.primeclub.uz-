@@ -51,7 +51,7 @@ const loginStore = useLoginStore();
       <div class="font-medium">{{ $t("certificates") }}</div>
     </router-link>
     <router-link
-      v-if="loginStore.token && !loginStore.isDemo"
+      v-if="loginStore.token"
       :to="localePath('/profile')"
       class="flex items-center flex-col w-1/3"
       :class="{ 'text-white': $route.path === localePath('/profile') }"

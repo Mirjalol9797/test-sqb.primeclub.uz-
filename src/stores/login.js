@@ -8,7 +8,6 @@ export const useLoginStore = defineStore("login", {
   state: () => ({
     token: null,
     user: null,
-    isDemo: false, // гостевой (демо) вход: профиль скрыт, сертификат заблокирован
     isAuthorizing: false,
     authError: null,
     balance: 10000000, // мок-баланс (используется в ModalAboniment)
@@ -82,7 +81,6 @@ export const useLoginStore = defineStore("login", {
         const token = res?.data?.token;
         if (res?.data?.status === true && token) {
           this.token = token; // persist-плагин сохранит в localStorage
-          this.isDemo = false; // полноценная авторизация по SSO
           // Профиль тянем штатным эндпоинтом; фолбэк — из ответа consent
           try {
             await this.getUserProfile();
@@ -103,40 +101,6 @@ export const useLoginStore = defineStore("login", {
           error: this.authError,
           message: body?.message || null,
         };
-      } finally {
-        this.isAuthorizing = false;
-      }
-    },
-
-    // Гостевой вход (нет sso_token): демо-авторизация со статическими кредами.
-    // POST v1/auth/demo-login → { data: { token, user, ... } }
-    async demoLogin() {
-      this.isAuthorizing = true;
-      this.authError = null;
-      try {
-        const res = await axios.post("v1/auth/demo-login", {
-          email: "demo@atlasmedia.uz",
-          password: "demo-account123",
-        });
-
-        const token = res?.data?.data?.token || res?.data?.token;
-        if (token) {
-          this.token = token;
-          this.isDemo = true; // ограниченный гостевой доступ
-          const demoUser = res?.data?.data?.user || res?.data?.user || null;
-          if (demoUser) this.user = demoUser;
-          // Уточняем профиль штатным эндпоинтом (необязательно)
-          try {
-            await this.getUserProfile();
-          } catch (profileError) {
-            console.warn("Профиль демо недоступен:", profileError);
-          }
-          return { ok: true };
-        }
-        return { ok: false };
-      } catch (error) {
-        console.error("Ошибка demoLogin:", error);
-        return { ok: false };
       } finally {
         this.isAuthorizing = false;
       }
@@ -170,8 +134,10 @@ export const useLoginStore = defineStore("login", {
       }
     },
 
-    // Сессия истекла/невалидна: чистим и уходим в гостевую витрину.
-    // Повторный автологин инициирует приложение банка новым sso_token.
+    // Сессия истекла/невалидна: чистим состояние и уводим на витрину.
+    // Без токена данных нет, поэтому guard роутера поднимет блокирующую
+    // модалку «Недостаточно данных». Повторный вход инициирует приложение
+    // банка новым sso_token.
     handleLogout(router) {
       this.logout();
       const prefix = router?.currentRoute?.value?.path?.startsWith("/uz")
@@ -183,7 +149,6 @@ export const useLoginStore = defineStore("login", {
     logout() {
       this.token = null;
       this.user = null;
-      this.isDemo = false;
       this.isAuthorizing = false;
       this.authError = null;
       // Чистим localStorage, но сохраняем факт принятия оферты: выход из

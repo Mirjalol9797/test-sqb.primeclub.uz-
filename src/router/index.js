@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useLoginStore } from "@/stores/login";
+import { useSettingsStore } from "@/stores/settings";
 import i18n from "@/plugins/i18n";
 import { setLocale } from "@/plugins/i18n";
 
@@ -13,7 +14,7 @@ const baseRoutes = [
     meta: { public: true },
     component: () => import("@/views/login/index.vue"),
   },
-  // Точка входа WebView: SSO-автологин или гостевой режим
+  // Точка входа WebView: SSO-автологин
   {
     path: "/app/partner/:partner_id",
     name: "PartnerEntry",
@@ -44,13 +45,13 @@ const baseRoutes = [
   {
     path: "/profile",
     name: "profile",
-    meta: { requiresAuth: true, demoBlocked: true },
+    meta: { requiresAuth: true },
     component: () => import("@/views/profile/index.vue"),
   },
   {
     path: "/profile/detail-info",
     name: "profile/detail-info",
-    meta: { requiresAuth: true, demoBlocked: true },
+    meta: { requiresAuth: true },
     component: () => import("@/views/profile/detail-info.vue"),
   },
   {
@@ -131,9 +132,12 @@ const router = createRouter({
   },
 });
 
-// 4) Guard: локаль (по параметру lang или префиксу /uz) + защита приватных роутов.
-//    Гостевой режим: публичные разделы витрины открыты без токена;
-//    только meta.requiresAuth требует авторизации.
+// Входные экраны: там токена ещё нет по определению — авторизация только
+// начинается, и решение о блокирующей модалке принимает сама partner-вью.
+const ENTRY_PATHS = ["/login", "/uz/login", "/app/partner", "/uz/app/partner"];
+
+// 4) Guard: локаль (по параметру lang или префиксу /uz), защита приватных
+//    роутов и блокирующая модалка «Недостаточно данных».
 router.beforeEach(async (to, from, next) => {
   const isUz = to.path.startsWith("/uz");
   const langParam = to.query.lang;
@@ -149,16 +153,17 @@ router.beforeEach(async (to, from, next) => {
   }
 
   const loginStore = useLoginStore();
+  const settingsStore = useSettingsStore();
   const token = loginStore.token;
 
-  // Приватные разделы недоступны гостю — уводим на витрину
-  if (to.meta.requiresAuth && !token) {
-    next(isUz ? "/uz/offer" : "/offer");
-    return;
+  // Гостевого режима нет: без токена каталог отдаёт 401, показывать нечего —
+  // поднимаем блокирующую модалку «Недостаточно данных».
+  if (!ENTRY_PATHS.some((path) => to.path.startsWith(path))) {
+    settingsStore.isNoData = !token;
   }
 
-  // Разделы, закрытые для демо-пользователя (например, профиль)
-  if (to.meta.demoBlocked && loginStore.isDemo) {
+  // Приватные разделы недоступны без токена — уводим на витрину
+  if (to.meta.requiresAuth && !token) {
     next(isUz ? "/uz/offer" : "/offer");
     return;
   }
