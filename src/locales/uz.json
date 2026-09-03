@@ -105,6 +105,7 @@
   "subscription_price": "3 600 000 so'm",
   "support": "Qo'llab-quvvatlash",
   "support_service": "Qo'llab-quvvatlash xizmati",
+  "support_department": "Qo'llab-quvvatlash bo'limi",
   "surname": "Familiya",
   "system_login": "Tizimga kirish",
   "touch_screen_to_start": "Videoni ishga tushirish uchun ekranni bosing",
@@ -237,6 +238,10 @@
     "writeMessage": "Xabaringizni yozing",
     "operatorsOnline": "Operatorlar onlayn",
     "supportChat": "Qo'llab-quvvatlash chati",
+    "connecting": "Ulanmoqda…",
+    "loading": "Yozishmalar yuklanmoqda…",
+    "loadFailed": "Chatni ochib bo'lmadi. Internet aloqasini tekshiring.",
+    "retry": "Qayta urinish",
     "inputPlaceholder": "Xabar yozing",
     "quickReplies": {
       "settings": "Sozlamalar bo'yicha",

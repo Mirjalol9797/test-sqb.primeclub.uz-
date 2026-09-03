@@ -13,6 +13,7 @@ export const useSettingsStore = defineStore("settings", {
     isAboniment: false,
     isModalChangeLanguage: false,
     isModalSupportService: false,
+    isModalSupportChat: false,
     // Блокирующая модалка «Недостаточно данных»: данные от сервера не получены
     // (нет sso_token или SSO-авторизация не прошла). Стор не персистится,
     // поэтому флаг живёт только в рамках текущей загрузки страницы.
