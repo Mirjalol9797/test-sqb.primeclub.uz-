@@ -2,7 +2,6 @@
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useLoginStore } from "@/stores/login";
-import { useSettingsStore } from "@/stores/settings";
 
 // Чат поддержки поверх API chat.primeclub.uz.
 //
@@ -11,12 +10,11 @@ import { useSettingsStore } from "@/stores/settings";
 // ошибкой, смонтировать его нельзя. Само API рабочее, поэтому общаемся с ним
 // напрямую — так же, как это сделано в проекте prime_club.
 //
-// В деве ходим через прокси dev-сервера (см. vite.config.js): CORS на
-// chat.primeclub.uz выдаётся по белому списку origin-ов, и порт может в него
-// не попасть. В прод-сборке — напрямую.
-const API_BASE = import.meta.env.DEV
-  ? "/api/widget"
-  : "https://chat.primeclub.uz/api/widget";
+// Адрес один и тот же в деве и в проде: так локальный запуск ведёт себя
+// ровно как боевой, и проблемы уровня CORS/CSP видны сразу, а не после
+// выкладки. Цена — dev-сервер должен подниматься строго на порту 5173:
+// белый список CORS на chat.primeclub.uz разрешает именно его.
+const API_BASE = "https://chat.primeclub.uz/api/widget";
 const API_KEY = "widget_KInVAdTARR0Uc0c2La6BpwMf9MP3Ukfv";
 const REQUEST_TIMEOUT = 15000;
 // Пока вебсокет не поднялся, историю догоняем опросом.
@@ -25,7 +23,6 @@ const WS_RETRY_DELAY = 3000;
 
 const { locale } = useI18n();
 const loginStore = useLoginStore();
-const settingsStore = useSettingsStore();
 
 const messages = ref([]);
 const draft = ref("");
@@ -33,6 +30,9 @@ const isLoading = ref(true);
 const loadFailed = ref(false);
 const isSending = ref(false);
 const isOnline = ref(false);
+// Причину показываем под сообщением об ошибке: без неё не отличить запрет
+// CORS (запрос до сервера не доходит) от отказа самого API.
+const failReason = ref("");
 
 const sessionId = ref(null);
 const chatId = ref(null);
@@ -63,7 +63,12 @@ async function request(endpoint, options = {}) {
     ...options,
   });
 
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (!response.ok) {
+    const error = new Error(`HTTP ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
+
   return response.json();
 }
 
@@ -266,6 +271,11 @@ async function bootstrap() {
   } catch (error) {
     console.error("Чат поддержки недоступен:", error);
     loadFailed.value = true;
+    failReason.value = error?.status
+      ? `HTTP ${error.status}`
+      : error?.message === "NO_TOKEN"
+      ? "no token"
+      : "network / CORS";
   } finally {
     isLoading.value = false;
   }
@@ -321,10 +331,6 @@ async function send() {
   }
 }
 
-function close() {
-  settingsStore.isModalSupportChat = false;
-}
-
 onMounted(() => {
   document.body.style.overflow = "hidden";
   bootstrap();
@@ -348,22 +354,8 @@ onUnmounted(() => {
     class="support-chat modal-safe-area fixed inset-0 z-[120] mx-auto flex max-w-[640px] flex-col bg-[#04060b] text-white"
   >
     <header
-      class="support-chat__header flex shrink-0 items-center gap-3 border-b border-[#ffffff1f] px-4 pb-3"
+      class="support-chat__header flex shrink-0 items-center border-b border-[#ffffff1f] px-4 pb-3"
     >
-      <button
-        type="button"
-        @click="close"
-        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ffffff0f]"
-      >
-        <svg class="w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"
-          ></path>
-        </svg>
-      </button>
       <div class="min-w-0">
         <div class="truncate font-medium">{{ $t("chat.supportChat") }}</div>
         <div class="flex items-center gap-1.5 text-xs text-[#b7bfce]">
@@ -382,7 +374,8 @@ onUnmounted(() => {
       </div>
 
       <div v-else-if="loadFailed" class="pt-10 text-center">
-        <p class="mb-4 text-sm text-[#b7bfce]">{{ $t("chat.loadFailed") }}</p>
+        <p class="mb-1 text-sm text-[#b7bfce]">{{ $t("chat.loadFailed") }}</p>
+        <p class="mb-4 text-xs text-[#6b7480]">{{ failReason }}</p>
         <button
           type="button"
           @click="bootstrap"
