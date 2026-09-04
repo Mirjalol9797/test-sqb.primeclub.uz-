@@ -43,6 +43,12 @@ const baseRoutes = [
     component: () => import("@/views/certificates/index.vue"),
   },
   {
+    path: "/chat",
+    name: "chat",
+    meta: { requiresAuth: true },
+    component: () => import("@/views/chat/index.vue"),
+  },
+  {
     path: "/profile",
     name: "profile",
     meta: { requiresAuth: true },

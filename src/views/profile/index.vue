@@ -7,7 +7,6 @@ import { useLoginStore } from "@/stores/login";
 import { useSettingsStore } from "@/stores/settings";
 import ModalChangeLanguage from "@/components/modals/ModalChangeLanguage.vue";
 import ModalSupportService from "@/components/modals/ModalSupportService.vue";
-import ModalSupportChat from "@/components/modals/ModalSupportChat.vue";
 import MainTitle from "@/components/MainTitle.vue";
 
 const settingsStore = useSettingsStore();
@@ -130,9 +129,9 @@ function logOut() {
               </svg>
             </div>
           </div>
-          <div
-            @click="settingsStore.isModalSupportChat = true"
-            class="flex items-center justify-between cursor-pointer gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
+          <router-link
+            :to="localePath('/chat')"
+            class="flex items-center justify-between gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
           >
             <div class="flex items-center gap-3">
               <svg
@@ -163,7 +162,7 @@ function logOut() {
                 ></path>
               </svg>
             </div>
-          </div>
+          </router-link>
           <div
             @click="settingsStore.isModalChangeLanguage = true"
             class="border-[#ffffff1f] flex items-center justify-between gap-3 p-2.5 border-0 border-b px-1 rounded-none py-4 mb-0"
@@ -320,7 +319,6 @@ function logOut() {
 
   <ModalChangeLanguage v-if="settingsStore.isModalChangeLanguage" />
   <ModalSupportService v-if="settingsStore.isModalSupportService" />
-  <ModalSupportChat v-if="settingsStore.isModalSupportChat" />
 </template>
 
 <style lang="scss" scoped>

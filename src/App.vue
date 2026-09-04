@@ -20,6 +20,8 @@ const hideHeader = computed(() => {
   // Скрываем для входных экранов (login-форвардер, partner-вход), поиска
   const hidePaths = [
     "/search",
+    "/chat",
+    "/uz/chat",
     "/login",
     "/uz/login",
     "/app/partner",
