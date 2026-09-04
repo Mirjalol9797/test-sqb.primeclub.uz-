@@ -129,6 +129,10 @@ function logOut() {
               </svg>
             </div>
           </div>
+          <!-- Чат поддержки скрыт: chat.primeclub.uz принимает только
+               токены боевого контура, на dev отдаёт 500. Вернуть, когда
+               бэкенд починит. Страница живёт по маршруту /chat. -->
+          <!--
           <router-link
             :to="localePath('/chat')"
             class="flex items-center justify-between gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
@@ -163,6 +167,7 @@ function logOut() {
               </svg>
             </div>
           </router-link>
+          -->
           <div
             @click="settingsStore.isModalChangeLanguage = true"
             class="border-[#ffffff1f] flex items-center justify-between gap-3 p-2.5 border-0 border-b px-1 rounded-none py-4 mb-0"
