@@ -152,8 +152,11 @@ function closeConditionsModal() {
           <div class="text-xs uppercase">{{ $t("certificate_code") }}</div>
           <div class="text-xl font-bold mt-1 break-all">{{ code }}</div>
         </div>
-        <div class="w-24 h-24 rounded-xl border border-[#ececf0] p-2 bg-[#eee]">
-          <img v-if="qrCode" :src="qrCode" alt="" />
+        <div
+          class="w-24 h-24 rounded-xl border border-[#ececf0] p-2 bg-[#eee]"
+          v-if="qrCode"
+        >
+          <img :src="qrCode" alt="" />
         </div>
       </div>
 
@@ -217,13 +220,11 @@ function closeConditionsModal() {
       />
     </div>
 
-    <div class="mt-4 rounded-3xl border border-[#ffffff1f] bg-[#eee] p-4">
-      <img
-        v-if="qrCode"
-        :src="qrCode"
-        alt=""
-        class="w-56 h-56 mx-auto rounded-xl p-3"
-      />
+    <div
+      class="mt-4 rounded-3xl border border-[#ffffff1f] bg-[#eee] p-4"
+      v-if="qrCode"
+    >
+      <img :src="qrCode" alt="" class="w-56 h-56 mx-auto rounded-xl p-3" />
       <div class="text-center text-[#5f646e] text-sm mt-3">
         {{ $t("show_to_staff") }}
       </div>
