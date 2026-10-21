@@ -19,6 +19,16 @@ function logOut() {
   localStorage.removeItem("telegramAuthCode");
   router.push(localePath("/offer"));
 }
+
+// Ссылки на документы открываем вручную, а не через target="_blank": в WebView
+// новое окно по умолчанию не создаётся (iOS нужен createWebViewWith, Android —
+// onCreateWindow). На iOS window.open отдаёт null, переход молча отбрасывается
+// и ссылка выглядит мёртвой — поэтому там уходим на переход верхнего уровня.
+function openLegalLink(url, event) {
+  event.preventDefault();
+  const opened = window.open(url, "_blank");
+  if (!opened) window.location.href = url;
+}
 </script>
 
 <template>
@@ -209,7 +219,7 @@ function logOut() {
         <div class="flex flex-col w-full">
           <a
             href="https://primeclub.uz/terms"
-            target="_blank"
+            @click="openLegalLink('https://primeclub.uz/terms', $event)"
             class="flex items-center justify-between gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
           >
             <div class="flex items-center gap-3">
@@ -244,7 +254,9 @@ function logOut() {
           </a>
           <a
             href="https://primeclub.uz/data-processing"
-            target="_blank"
+            @click="
+              openLegalLink('https://primeclub.uz/data-processing', $event)
+            "
             class="flex items-center justify-between gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
           >
             <div class="flex items-center gap-3">
