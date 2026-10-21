@@ -218,8 +218,10 @@ function openLegalLink(url, event) {
         </div>
         <div class="flex flex-col w-full">
           <a
-            href="https://primeclub.uz/terms"
-            @click="openLegalLink('https://primeclub.uz/terms', $event)"
+            href="https://primeclub.uz/data-processing"
+            @click="
+              openLegalLink('https://primeclub.uz/data-processing', $event)
+            "
             class="flex items-center justify-between gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
           >
             <div class="flex items-center gap-3">
@@ -253,10 +255,8 @@ function openLegalLink(url, event) {
             </div>
           </a>
           <a
-            href="https://primeclub.uz/data-processing"
-            @click="
-              openLegalLink('https://primeclub.uz/data-processing', $event)
-            "
+            href="https://primeclub.uz/terms"
+            @click="openLegalLink('https://primeclub.uz/terms', $event)"
             class="flex items-center justify-between gap-3 p-2.5 border-[#ffffff1f] bg-transparent border-0 border-b px-1 rounded-none py-4 mb-0"
           >
             <div class="flex items-center gap-3">
