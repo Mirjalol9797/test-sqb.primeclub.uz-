@@ -53,11 +53,18 @@ const phone = ssoPayload?.phone ?? params.get("phone");
 const name = ssoPayload?.name ?? params.get("name");
 const lang = ssoPayload?.lang ?? params.get("lang") ?? "ru";
 
+// Идентификатор пользователя для обращений в поддержку: по нему партнёра
+// находят, не передавая номер телефона между сотрудниками. Штатное место —
+// claim `sub` внутри sso_token; query-параметр `user_id` оставлен запасным
+// вариантом на случай, если приложение банка начнёт слать его отдельно.
+const userId = ssoPayload?.sub ?? params.get("user_id");
+
 const payload = () => ({
   sso_token: ssoToken,
   phone,
   name,
   lang,
+  user_id: userId,
 });
 
 function offerPath() {

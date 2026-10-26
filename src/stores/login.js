@@ -67,7 +67,7 @@ export const useLoginStore = defineStore("login", {
 
     // Шаг 2 SSO: принятие оферты и завершение авторизации.
     // POST v1/auth/partner/webview/consent → { token (Bearer), user }
-    async consentSso({ sso_token, phone, name, lang }) {
+    async consentSso({ sso_token, phone, name, lang, user_id }) {
       this.isAuthorizing = true;
       this.authError = null;
       try {
@@ -76,6 +76,7 @@ export const useLoginStore = defineStore("login", {
           phone,
           name,
           lang,
+          user_id,
         });
 
         const token = res?.data?.token;
